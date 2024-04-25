@@ -1,4 +1,4 @@
-import { renderIncomeBarPlot, renderLineChart} from "./plot_fns.js";
+import { renderIncomeBarPlot, renderLineChart, renderChoroplethMap} from "./plot_fns.js";
 import {incomeYAxisColumns} from "./constants.js"
 import { generateDropdownOptions } from "./util.js";
 
@@ -34,10 +34,15 @@ export async function fetchData(url, data) {
 document.addEventListener("DOMContentLoaded", async function() {
     console.log("DOM LOADED")
     const countryNamesData = await fetchData('/get_country_names', {});
+    const geoData =  await fetchData('/get_geojson_data', {});
+
 
     generateDropdownOptions(document.getElementById('y-col-attr'), incomeYAxisColumns,"any");
     generateDropdownOptions(document.getElementById('y-col-attr-line'), incomeYAxisColumns,"any");
     generateDropdownOptions(document.getElementById('country-line'), countryNamesData.country_names,"any");
+
+    renderChoroplethMap(geoData)
+
 
 });
 

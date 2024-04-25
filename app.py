@@ -10,6 +10,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import StandardScaler, PowerTransformer
 import pandas as pd
 import warnings
+from sklearn.manifold import MDS
+from sklearn.metrics import pairwise_distances
+import json
 
 warnings.filterwarnings("ignore")
 
@@ -24,8 +27,10 @@ numerical_columns = [
 
 app = Flask(__name__)
 
-# df = pd.read_csv("data.csv")
 df = pd.read_csv("final_comb_data.csv")
+
+with open('merged_world_map.geojson', 'r') as file:
+    geojson_data = json.load(file)
 
 
 @app.route('/')
@@ -37,6 +42,10 @@ def index():
 def ref():
     return render_template('references.html')
 
+@app.route('/get_geojson_data', methods=['POST'])
+def get_geojson_data():
+    print("HII")
+    return jsonify(geojson_data)
 
 @app.route('/get_data', methods=['POST'])
 def get_data():

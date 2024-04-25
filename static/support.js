@@ -1,4 +1,4 @@
-import { renderIncomeBarPlot} from "./plot_fns.js";
+import { renderIncomeBarPlot, renderLineChart} from "./plot_fns.js";
 import {incomeYAxisColumns} from "./constants.js"
 import { generateDropdownOptions } from "./util.js";
 
@@ -20,7 +20,7 @@ const columnMetadata = {
     'Population under the age of 25':"Population of children under the age of 25: In millions",
   };
 
-async function fetchData(url, data) {
+export async function fetchData(url, data) {
     const response = await fetch(url, {
         method: 'POST',
         body: data,
@@ -32,23 +32,21 @@ async function fetchData(url, data) {
 }
 
 document.addEventListener("DOMContentLoaded", async function() {
+    console.log("DOM LOADED")
+    const countryNamesData = await fetchData('/get_country_names', {});
+
     generateDropdownOptions(document.getElementById('y-col-attr'), incomeYAxisColumns,"any");
+    generateDropdownOptions(document.getElementById('y-col-attr-line'), incomeYAxisColumns,"any");
+    generateDropdownOptions(document.getElementById('country-line'), countryNamesData.country_names,"any");
 
 });
 
-// document.getElementById("visualizeButton").addEventListener("click", async function() {
-//     const incomeFormData = new URLSearchParams();
-//     let year = document.getElementById('year').value;
-//     let low_thresh = document.getElementById('lowThreshold').value;
-//     let mid_thresh = document.getElementById('midThreshold').value;
 
-//     incomeFormData.append('year', year); 
-//     incomeFormData.append('low_threshold', low_thresh); 
-//     incomeFormData.append('mid_threshold', mid_thresh); 
-//     console.log(incomeFormData)
-//     const incomeData =  await fetchData('/get_income_data', incomeFormData);
-//     renderIncomeBarPlot(incomeData)
-// });
+document.getElementById("y-col-attr-line").addEventListener("change", async function() {
+    console.log("UPDATING LINE PLOT")
+    const lineData=  await fetchData('/choose_country', {});
+    renderLineChart(lineData)
+});
 
 document.getElementById("y-col-attr").addEventListener("change", async function() {
     const incomeFormData = new URLSearchParams();
@@ -63,3 +61,5 @@ document.getElementById("y-col-attr").addEventListener("change", async function(
     const incomeData =  await fetchData('/get_income_data', incomeFormData);
     renderIncomeBarPlot(incomeData)
 });
+
+

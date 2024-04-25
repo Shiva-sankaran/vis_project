@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../static/styles.css">
     <script type="module" src="../static/plot_fns.js"></script>
     <script type="module" src="../static/support.js"></script>
+    <script type="module" src="../static/constants.js"></script>
 </head>
 
 <body>
@@ -29,17 +30,14 @@
               </div>
               <div style="position: absolute; bottom: 100px;">
 
-                <!-- <label class="dropdown-label" for="country-line" style="color: white;">Country:</label>
-                <select id="country-line" class="dropdown-select"> <br> -->
-
                 <label class="dropdown-label" for="y-col-attr-line" style="color: white;">Y Axis Column:</label>
                 <select id="y-col-attr-line" class="dropdown-select">
                 </select><br>
 
                 <label class="dropdown-label" for="country-line" style="color: white;">Country:</label>
-                <select id="ountry-line" class="dropdown-select">  
+                <select id="country-line" class="dropdown-select">  
                 </select>
-                
+
             </div>
           </section>
 
@@ -73,23 +71,14 @@
 
           
       </div>
-      <!-- <div class="graph-sections-container" style="margin-left: 0px;">
-        <section id="BiPlot" class="graph-section">
+       <div class="graph-sections-container" style="margin-left: 0px;">
+        <section id="age-specific" class="graph-section">
             <div class="feature">
-                <h2>BiPlot Plot</h2>
-                <div id="biplot-dropdowns-container" style="text-align: left; justify-content: left; position: absolute;left:0;top:1px;">
-                  <label for="x-pc-select">Select X PC Component:</label>
-                  <select id="x-pc-select" style="margin-right: 10px;">
-                  </select>
-                  
-                  <label for="y-pc-select">Select Y PC Component:</label>
-                  <select id="y-pc-select">
-                  </select>
-              </div>
-                <svg id="pca_biplot" width="1200" height="1200"></svg>
+                <h2>Age Specific</h2>
+                <svg id="age_specific" width="1200" height="1200"></svg>
             </div>
         </section>
-
+        
         <section id="scatter_matrix" class="graph-section">
             <div class="feature">
                 <h2>Scatter Plot Matrix</h2>
@@ -98,7 +87,7 @@
                 </div>
             </div>
         </section>
-    </div> -->
+    </div> 
       
         <aside class="side-panel">
           <h2>Additional Information</h2>

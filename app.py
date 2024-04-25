@@ -52,7 +52,8 @@ def get_income_data():
     year_data = df[df['Year'] == year]
 
     low_income_countries = year_data[year_data['GDP'] < low_threshold]
-    mid_income_countries = year_data[(year_data['GDP'] >= low_threshold) & (year_data['GDP'] < mid_threshold)]
+    mid_income_countries = year_data[(year_data['GDP'] >= low_threshold)
+                                     & (year_data['GDP'] < mid_threshold)]
     high_income_countries = year_data[year_data['GDP'] >= mid_threshold]
 
     low_income_avg = low_income_countries.mean().to_dict()
@@ -67,6 +68,20 @@ def get_income_data():
 
     return jsonify(data)
 
+
+@app.route('/get_country_names', methods=['POST'])
+def get_country_names():
+
+    data = {
+        'country_names': df["Country"].unique().tolist(),
+    }
+
+    return jsonify(data)
+
+@app.route('/choose_country', methods=['POST'])
+def choose_country():
+    country_df = df[df['Country'] == 'Albania']
+    return jsonify(country_df.to_dict(orient='records'))
 
 if __name__ == '__main__':
     app.run(debug=True)

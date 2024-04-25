@@ -1,4 +1,6 @@
-import { updateScreePlot,updateKMeansMSEPlot,updatePCABiplot,renderScatterMatrix } from "./plot_fns.js";
+import { renderIncomeBarPlot} from "./plot_fns.js";
+import {incomeYAxisColumns} from "./constants.js"
+import { generateDropdownOptions } from "./util.js";
 
 const columnMetadata = {
     'Country': "Country : No Meta data",
@@ -29,120 +31,35 @@ async function fetchData(url, data) {
     return response.json();
 }
 
-export async function findElbowPoint(data) {
-    
-
-    const kneeData = new URLSearchParams();
-    kneeData.append('data', JSON.stringify(data));
-    console.log("DATA:")
-    console.log(JSON.stringify(data))
-    const knee_point = await fetchData('/find_knee', kneeData);
-    console.log("RESPONSE KNEE POINT",knee_point)
-    console.log("KNEE POINT:",knee_point.knee_point)
-    return knee_point.knee_point;
-}
-
-async function fetchTopPCA() {
-    const response = await fetchData('/pca_top', {});
-    const importantColumns = response.most_important_columns;
-    const loadingScores = response.loading_scores;
-
-    const tableBody = document.getElementById('important-columns-body');
-    tableBody.innerHTML = ''; 
-    document.getElementById("meta-data-panel").innerText = '';
-    importantColumns.forEach((columnName, index) => {
-        document.getElementById("meta-data-panel").innerText = document.getElementById("meta-data-panel").innerText + columnMetadata[columnName] + "\n"
-        const score = loadingScores[index];
-        const row = `<tr>
-                        <td>${columnName}</td>
-                        <td>${score}</td>
-                    </tr>`;
-        tableBody.insertAdjacentHTML('beforeend', row);
-    });
-    return importantColumns
-}
-
 document.addEventListener("DOMContentLoaded", async function() {
-
-const xDropdown = document.getElementById("x-pc-select");
-for (let i = 1; i <= 11; i++) {
-    const option = document.createElement("option");
-    option.text = "Principle Component " + i;
-    option.value = i;
-    xDropdown.appendChild(option);
-}
-
-xDropdown.value = 1; 
-
-const yDropdown = document.getElementById("y-pc-select");
-for (let i = 1; i <= 11; i++) {
-    const option = document.createElement("option");
-    option.text = "Principle Component " + i;
-    option.value = i;
-    yDropdown.appendChild(option);
-}
-
-yDropdown.value = 2;  
-
-const pcaData = await fetchData('/pca', {});
-updateScreePlot(pcaData.explained_variance_ratio,pcaData.cum_explained_variance);
-
-const kMeansMSEFormData = new URLSearchParams();
-kMeansMSEFormData.append('num_clusters', 10); 
-const kMeansMSEData = await fetchData('/kmeans_mse', kMeansMSEFormData);
-updateKMeansMSEPlot(kMeansMSEData.mse_values);
-
-const pcaBiplotData = await fetchData('/pca_biplot', {});
-updatePCABiplot(pcaBiplotData.X_pca, pcaBiplotData.pca_components,pcaBiplotData.cluster_labels, pcaBiplotData.feature_names);
-
-fetchTopPCA()
-
-const ScatterData = await fetchData('/scatter_matrix', {});
-renderScatterMatrix(ScatterData.scatter_data,ScatterData.cluster_labels);
-
+    generateDropdownOptions(document.getElementById('y-col-attr'), incomeYAxisColumns,"any");
 
 });
 
-export async function updateBiPlot(){
-    console.log("UPDATING BIPLOT")
-    const pcaBiplotData = await fetchData('/pca_biplot', {});
-    updatePCABiplot(pcaBiplotData.X_pca, pcaBiplotData.pca_components,pcaBiplotData.cluster_labels, pcaBiplotData.feature_names);
+// document.getElementById("visualizeButton").addEventListener("click", async function() {
+//     const incomeFormData = new URLSearchParams();
+//     let year = document.getElementById('year').value;
+//     let low_thresh = document.getElementById('lowThreshold').value;
+//     let mid_thresh = document.getElementById('midThreshold').value;
 
-};
+//     incomeFormData.append('year', year); 
+//     incomeFormData.append('low_threshold', low_thresh); 
+//     incomeFormData.append('mid_threshold', mid_thresh); 
+//     console.log(incomeFormData)
+//     const incomeData =  await fetchData('/get_income_data', incomeFormData);
+//     renderIncomeBarPlot(incomeData)
+// });
 
-export async function updateScatterMatrix(){
-    const ScatterData = await fetchData('/scatter_matrix', {});
-    renderScatterMatrix(ScatterData.scatter_data,ScatterData.cluster_labels);
+document.getElementById("y-col-attr").addEventListener("change", async function() {
+    const incomeFormData = new URLSearchParams();
+    let year = document.getElementById('year').value;
+    let low_thresh = document.getElementById('lowThreshold').value;
+    let mid_thresh = document.getElementById('midThreshold').value;
 
-
-};
-
-export async function updateImpAttr(){
-    let imp_columns = fetchTopPCA().value
-    console.log("IMPORTANT COLUMNS:",imp_columns)
-    updatemetaData(imp_columns)
-
-};
-
-export async function updatemetaData(columns){
-    console.log("UPDIANG META DATA")
-    columns.forEach((columnName, index) => {
-        document.getElementById("meta-data-panel").innerText = document.getElementById("meta-data-panel").innerText + columnMetadata[columnName]
-    });
-
-
-};
-
-document.getElementById("x-pc-select").addEventListener("change", async function() {
-    const selectedXPC = parseInt(this.value);  
-    const pcaBiplotData = await fetchData('/pca_biplot', {});
-    updatePCABiplot(pcaBiplotData.X_pca, pcaBiplotData.pca_components,pcaBiplotData.cluster_labels, pcaBiplotData.feature_names);
-    console.log("Selected X-axis PC:", selectedXPC);
-});
-
-document.getElementById("y-pc-select").addEventListener("change", async function() {
-    const selectedXPC = parseInt(this.value); 
-    const pcaBiplotData = await fetchData('/pca_biplot', {});
-    updatePCABiplot(pcaBiplotData.X_pca, pcaBiplotData.pca_components,pcaBiplotData.cluster_labels, pcaBiplotData.feature_names);
-    console.log("Selected Y-axis PC:", selectedXPC);
+    incomeFormData.append('year', year); 
+    incomeFormData.append('low_threshold', low_thresh); 
+    incomeFormData.append('mid_threshold', mid_thresh); 
+    console.log(incomeFormData)
+    const incomeData =  await fetchData('/get_income_data', incomeFormData);
+    renderIncomeBarPlot(incomeData)
 });

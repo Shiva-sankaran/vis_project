@@ -19,42 +19,61 @@
             </ul>
           </nav>
         </header>
-        <img src="../static/pac.jpg" id ="memeImage" alt="Your Image" width="500" height="475" style="position: absolute; top: 650px; left: 1296px;">
+        <!-- <img src="../static/pac.jpg" id ="memeImage" alt="Your Image" width="500" height="475" style="position: absolute; top: 650px; left: 1296px;"> -->
 
         <div class="graph-sections-container">
-          <section id="scree_plot" class="graph-section">
-              <div class="feature" style="width: 1158px; height: 1000px;">
-                  <h2>Scree Plot</h2>
-                  <svg id="screeplot" width="800" height="800"></svg>
+          <section id="line_plot" class="graph-section">
+              <div class="feature" style="width: 1158px; height: 1200px;">
+                  <h2>Line Plot</h2>
+                  <svg id="line-plot" width="800" height="800"></svg>
               </div>
+              <div style="position: absolute; bottom: 100px;">
+
+                <!-- <label class="dropdown-label" for="country-line" style="color: white;">Country:</label>
+                <select id="country-line" class="dropdown-select"> <br> -->
+
+                <label class="dropdown-label" for="y-col-attr-line" style="color: white;">Y Axis Column:</label>
+                <select id="y-col-attr-line" class="dropdown-select">
+                </select><br>
+
+                <label class="dropdown-label" for="country-line" style="color: white;">Country:</label>
+                <select id="ountry-line" class="dropdown-select">  
+                </select>
+                
+            </div>
           </section>
 
-          <section id="important_columns" class="graph-section">
-            <div class="feature" style="text-align: center;width: 500px; height: 500px;margin-right: 45px;margin-left: 45px;">
-                <h2>Most Important Columns</h2>
-                <table id="important-columns-table">
-                    <thead>
-                        <tr>
-                            <th style="padding-right: 10px; margin-right: 10px;">Column Name</th>
-                            <th>Score</th>
-                        </tr>
-                    </thead>
-                    <tbody id="important-columns-body">
-                    </tbody>
-                </table>
-            </div>
-        </section>
+
   
-          <section id="kmeans_mse" class="graph-section">
-              <div class="feature" style="width: 1158px; height: 1000px;">
-                  <h2>K-means MSE Plot</h2>
-                  <svg id="kmeans_mse_plot" width="800" height="800"></svg>
+          <section id="bar_plot" class="graph-section">
+            
+              <div class="feature" style="width: 1158px; height: 1200px;">
+                  <h2>Bar Plot</h2>
+                  <svg id="bar_plot_svg" width="800" height="800"></svg>
+
+                  <div style="position: absolute; bottom: 70px;">
+                    <label for="year">Year:</label>
+                    <input type="number" id="year" value="2001"><br>
+        
+                    <label for="lowThreshold">Low Threshold:</label>
+                    <input type="number" id="lowThreshold" value="1000"><br>
+        
+                    <label for="midThreshold">Mid Threshold:</label>
+                    <input type="number" id="midThreshold" value="10000"><br>
+        
+                    <label class="dropdown-label" for="y-col-attr" style="color: white;">Y Axis Column:</label>
+                    <select id="y-col-attr" class="dropdown-select">
+                    </select>
+
+                    
+                </div>
+                  
               </div>
           </section>
 
           
       </div>
-      <div class="graph-sections-container" style="margin-left: 0px;">
+      <!-- <div class="graph-sections-container" style="margin-left: 0px;">
         <section id="BiPlot" class="graph-section">
             <div class="feature">
                 <h2>BiPlot Plot</h2>
@@ -79,7 +98,7 @@
                 </div>
             </div>
         </section>
-    </div>
+    </div> -->
       
         <aside class="side-panel">
           <h2>Additional Information</h2>

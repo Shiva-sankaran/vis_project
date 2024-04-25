@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCA Visualization</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <link rel="stylesheet" href="../static/styles.css">
+    <script type="module" src="../static/plot_fns.js"></script>
+    <script type="module" src="../static/support.js"></script>
+</head>
+
+<body>
+        <header>
+          <h1>PCA Visualization</h1>
+          <nav>
+            <ul>
+              <li><a href="references">References</a></li>
+            </ul>
+          </nav>
+        </header>
+        <img src="../static/pac.jpg" id ="memeImage" alt="Your Image" width="500" height="475" style="position: absolute; top: 650px; left: 1296px;">
+
+        <div class="graph-sections-container">
+          <section id="scree_plot" class="graph-section">
+              <div class="feature" style="width: 1158px; height: 1000px;">
+                  <h2>Scree Plot</h2>
+                  <svg id="screeplot" width="800" height="800"></svg>
+              </div>
+          </section>
+
+          <section id="important_columns" class="graph-section">
+            <div class="feature" style="text-align: center;width: 500px; height: 500px;margin-right: 45px;margin-left: 45px;">
+                <h2>Most Important Columns</h2>
+                <table id="important-columns-table">
+                    <thead>
+                        <tr>
+                            <th style="padding-right: 10px; margin-right: 10px;">Column Name</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="important-columns-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+  
+          <section id="kmeans_mse" class="graph-section">
+              <div class="feature" style="width: 1158px; height: 1000px;">
+                  <h2>K-means MSE Plot</h2>
+                  <svg id="kmeans_mse_plot" width="800" height="800"></svg>
+              </div>
+          </section>
+
+          
+      </div>
+      <div class="graph-sections-container" style="margin-left: 0px;">
+        <section id="BiPlot" class="graph-section">
+            <div class="feature">
+                <h2>BiPlot Plot</h2>
+                <div id="biplot-dropdowns-container" style="text-align: left; justify-content: left; position: absolute;left:0;top:1px;">
+                  <label for="x-pc-select">Select X PC Component:</label>
+                  <select id="x-pc-select" style="margin-right: 10px;">
+                  </select>
+                  
+                  <label for="y-pc-select">Select Y PC Component:</label>
+                  <select id="y-pc-select">
+                  </select>
+              </div>
+                <svg id="pca_biplot" width="1200" height="1200"></svg>
+            </div>
+        </section>
+
+        <section id="scatter_matrix" class="graph-section">
+            <div class="feature">
+                <h2>Scatter Plot Matrix</h2>
+                <div id="scatter-matrix-container" class="scatter-matrix-container">
+                    <svg id="scatter-matrix" width="1200" height="1200"></svg>
+                </div>
+            </div>
+        </section>
+    </div>
+      
+        <aside class="side-panel">
+          <h2>Additional Information</h2>
+          <p id="meta-data-panel">Meta data related to the chosen attributes will be shown here</p>
+        </aside>
+      
+        <footer>
+          <div class="footer-content">
+            <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
+            <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
+            <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
+          </div>
+        </footer>
+</body>
+</html>
+
+

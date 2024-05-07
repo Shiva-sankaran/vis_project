@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     generateDropdownOptions(document.getElementById('y-col-attr'), incomeYAxisColumns,"any");
     generateDropdownOptions(document.getElementById('y-col-attr-line'), incomeYAxisColumns,"any");
     generateDropdownOptions(document.getElementById('country-line'), countryNamesData.country_names,"any");
+    generateDropdownOptions(document.getElementById('country-stacked-bar'), countryNamesData.country_names,"any");
 
     renderChoroplethMap(geoData)
 

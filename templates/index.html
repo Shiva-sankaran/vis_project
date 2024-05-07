@@ -12,96 +12,110 @@
 </head>
 
 <body>
-        <header>
-          <h1>PCA Visualization</h1>
-          <nav>
-            <ul>
-              <li><a href="references">References</a></li>
-            </ul>
-          </nav>
-        </header>
-        <!-- <img src="../static/pac.jpg" id ="memeImage" alt="Your Image" width="500" height="475" style="position: absolute; top: 650px; left: 1296px;"> -->
+  <header>
+    <h1>PCA Visualization</h1>
+    <nav>
+      <ul>
+        <li><a href="references">References</a></li>
+      </ul>
+    </nav>
+  </header>
 
-        <div class="graph-sections-container">
-          <section id="line_plot" class="graph-section">
-              <div class="feature" style="width: 1158px; height: 1200px;">
-                  <h2>Line Plot</h2>
-                  <svg id="line-plot" width="800" height="800"></svg>
-              </div>
-              <div style="position: absolute; bottom: 100px;">
+  <div class="graph-sections-container">
+    <section id="line_plot" class="graph-section">
+        <div class="feature" style="width: 1158px; height: 1200px;">
+            <h2>Line Plot</h2>
+            <svg id="line-plot" width="800" height="800"></svg>
+        </div>
+        <div style="position: absolute; bottom: 100px;">
 
-                <label class="dropdown-label" for="y-col-attr-line" style="color: white;">Y Axis Column:</label>
-                <select id="y-col-attr-line" class="dropdown-select">
-                </select><br>
+          <label class="dropdown-label" for="y-col-attr-line" style="color: white;">Y Axis Column:</label>
+          <select id="y-col-attr-line" class="dropdown-select">
+          </select><br>
 
-                <label class="dropdown-label" for="country-line" style="color: white;">Country:</label>
-                <select id="country-line" class="dropdown-select">  
-                </select>
+          <label class="dropdown-label" for="country-line" style="color: white;">Country:</label>
+          <select id="country-line" class="dropdown-select">  
+          </select>
 
-            </div>
-          </section>
+      </div>
+    </section>
 
 
+
+    <section id="bar_plot" class="graph-section">
+      
+        <div class="feature" style="width: 1158px; height: 1200px;">
+            <h2>Bar Plot</h2>
+            <svg id="bar_plot_svg" width="800" height="800"></svg>
+
+            <div style="position: absolute; bottom: 70px;">
+
+              
+              <label for="year">Year:</label>
+              <input type="number" id="year" value="2001"><br>
   
-          <section id="bar_plot" class="graph-section">
+              <label for="lowThreshold">Low Threshold:</label>
+              <input type="number" id="lowThreshold" value="1000"><br>
+  
+              <label for="midThreshold">Mid Threshold:</label>
+              <input type="number" id="midThreshold" value="10000"><br>
+  
+              <label class="dropdown-label" for="y-col-attr" style="color: white;">Y Axis Column:</label>
+              <select id="y-col-attr" class="dropdown-select">
+              </select>
+
+          </div>
             
-              <div class="feature" style="width: 1158px; height: 1200px;">
-                  <h2>Bar Plot</h2>
-                  <svg id="bar_plot_svg" width="800" height="800"></svg>
+        </div>
+    </section>
 
-                  <div style="position: absolute; bottom: 70px;">
-                    <label for="year">Year:</label>
-                    <input type="number" id="year" value="2001"><br>
-        
-                    <label for="lowThreshold">Low Threshold:</label>
-                    <input type="number" id="lowThreshold" value="1000"><br>
-        
-                    <label for="midThreshold">Mid Threshold:</label>
-                    <input type="number" id="midThreshold" value="10000"><br>
-        
-                    <label class="dropdown-label" for="y-col-attr" style="color: white;">Y Axis Column:</label>
-                    <select id="y-col-attr" class="dropdown-select">
-                    </select>
+    <section id="stacked_bar_plot" class="graph-section">
+      
+      <div class="feature" style="width: 1158px; height: 1200px;">
+          <h2>Stacked Bar Plot</h2>
+          <svg id="stacked_bar_plot_svg" width="800" height="800"></svg>
 
-                    
-                </div>
-                  
-              </div>
-          </section>
+          <div style="position: absolute; bottom: 70px;">
 
+            <label for="year">Year:</label>
+            <input type="number" id="year" value="2001"><br>
+
+            <label class="dropdown-label" for="country-stacked-bar" style="color: white;">Country:</label>
+            <select id="country-stacked-bar" class="dropdown-select">  
+            </select>
+            
+        </div>
           
       </div>
-       <div class="graph-sections-container" style="margin-left: 0px; width: 2400px;">
-        <section id="geo-spatial" class="graph-section">
-            <div class="feature">
-                <h2>GeoSpatial</h2>
-                <svg id="map-svg" width="3400" height="1200"></svg>
-            </div>
-        </section>
-        
-        <!-- <section id="scatter_matrix" class="graph-section">
-            <div class="feature">
-                <h2>Scatter Plot Matrix</h2>
-                <div id="scatter-matrix-container" class="scatter-matrix-container">
-                    <svg id="scatter-matrix" width="1200" height="1200"></svg>
-                </div>
-            </div>
-        </section> -->
-    </div> 
-      
-        <aside class="side-panel">
-          <h2>Additional Information</h2>
-          <p id="meta-data-panel">Meta data related to the chosen attributes will be shown here</p>
-        </aside>
-      
-        <footer>
-          <div class="footer-content">
-            <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
-            <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
-            <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
-          </div>
-        </footer>
+    </section>
+  </div>
+
+
+
+  <div class="graph-sections-container" style="margin-left: 0px; width: 2400px;">
+    <section id="geo-spatial" class="graph-section">
+        <div class="feature" style="width: max-content;">
+            <h2>GeoSpatial</h2>
+            <svg id="map-svg" width="3400" height="1200"></svg>
+        </div>
+    </section>
+
+  </div> 
+
+  <aside class="side-panel">
+    <h2>Additional Information</h2>
+    <p id="meta-data-panel">Meta data related to the chosen attributes will be shown here</p>
+  </aside>
+
+  <footer>
+    <div class="footer-content">
+      <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
+      <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
+      <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
+    </div>
+  </footer>
 </body>
+
 </html>
 
 

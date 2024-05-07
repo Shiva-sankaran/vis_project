@@ -22,86 +22,115 @@ async function sendData(url, data) {
     }
 }
 
-export function renderChoroplethMap(geoData) {
-    // Clear previous visualization
-    d3.select("#map-svg").selectAll("*").remove();
-  
-    // Set up the SVG container
-    const svg = d3.select("#map-svg");
-    const width = +svg.attr("width");
-    const height = +svg.attr("height");
-  
-    // Set up the projection
-    const projection = d3.geoMercator()
-      .fitSize([width, height], geoData);
-  
-    // Set up the path generator
-    const pathGenerator = d3.geoPath()
-      .projection(projection);
-  
-    // Define color scale based on data values
-    const colorScale = d3.scaleSequential(d3.interpolateYlGn)
-      .domain([0, 100]);  // Adjust domain based on your data range
-  
-    // Create the tooltip element
-    const tooltip = d3.select("body")
-  .append("div")
-  .attr("id", "tooltip")
-  .style("display", "none")
-  .style("position", "absolute")
-  .style("background-color", "black")  // Set background color to black
-  .style("border", "1px solid white")   // Set border to white
-  .style("padding", "5px")
-  .style("color", "orange");             // Set text color to orange
-
-  
-    // Draw the map with paths
-    svg.selectAll("path")
-      .data(geoData.features)
-      .enter().append("path")
-      .attr("d", pathGenerator)
-      .attr("fill", d => {
-        // Check if properties exist before accessing them
-        if (d.properties && d.properties['Literarcy rate']) {
-          return getColor(d.properties['Literarcy rate']);
-        } else {
-          return "lightgray"; // Or any other default color
-        }
-      })
-      .attr("stroke", "white")
-      .attr("stroke-width", 0.5)
-      // Add mouseover event handler
-      .on("mouseover", function(event, d) {
-        // Format the tooltip content with country name and literacy rate
-        const tooltipContent = `<b>${d.properties.name}</b><br>Literarcy Rate: ${d.properties['Literarcy rate']}%`;
-      
-        tooltip.style("display", "block")
-          .html(tooltipContent);
-      
-        // Position tooltip near the mouse
-        const x = event.pageX + 10;
-        const y = event.pageY + 10;
-        tooltip.style("left", `${x}px`)
-          .style("top", `${y}px`);
-      })
-      
-      // Add mouseout event handler to hide tooltip
-      .on("mouseout", function() {
-        tooltip.style("display", "none");
-      });
-  }
-  
-  
-
-  
 function getColor(value) {
     // Define color scale based on data values
     // You can customize the color scale as needed
     // This is just a basic example
     const colorScale = d3.scaleSequential(d3.interpolateYlGn)
-        .domain([0, 1]);  // Adjust domain based on your data range
+        .domain([0, 100]);  // Adjust domain based on your data range
     return colorScale(value);
 }
+
+export function renderChoroplethMap(geoData) {
+    // Clear previous visualization
+    d3.select("#map-svg").selectAll("*").remove();
+
+    // Set up the SVG container
+    const svg = d3.select("#map-svg");
+    // const width = 1200; // Set a larger width
+    // const height = 800; // Set a larger height
+    const width = +svg.attr("width");
+    const height = +svg.attr("height");
+
+    // Set up the projection
+    const projection = d3.geoMercator()
+        .fitSize([width, height], geoData);
+
+    // Set up the path generator
+    const pathGenerator = d3.geoPath()
+        .projection(projection);
+
+    // Define color scale based on data values
+    const colorScale = d3.scaleSequential(d3.interpolateYlGn)
+        .domain([0, 100]);  // Adjust domain based on your data range
+
+    // Create the tooltip element
+    const tooltip = d3.select("body")
+        .append("div")
+        .attr("id", "tooltip")
+        .style("display", "none")
+        .style("position", "absolute")
+        .style("background-color", "black")  // Set background color to black
+        .style("border", "1px solid white")   // Set border to white
+        .style("padding", "5px")
+        .style("color", "orange");             // Set text color to orange
+
+    // Draw the map with paths
+    svg.selectAll("path")
+        .data(geoData.features)
+        .enter().append("path")
+        .attr("d", pathGenerator)
+        .attr("fill", d => {
+            // Check if properties exist before accessing them
+            if (d.properties && d.properties['Literarcy rate']) {
+                return getColor(d.properties['Literarcy rate']);
+            } else {
+                return "lightgray"; // Or any other default color
+            }
+        })
+        .attr("stroke", "white")
+        .attr("stroke-width", 0.5)
+        // Add mouseover event handler
+        .on("mouseover", function(event, d) {
+            // Format the tooltip content with country name and literacy rate
+            const tooltipContent = `<b>${d.properties.name}</b><br>Literarcy Rate: ${d.properties['Literarcy rate']}%`;
+
+            tooltip.style("display", "block")
+                .html(tooltipContent);
+
+            // Position tooltip near the mouse
+            const x = event.pageX + 10;
+            const y = event.pageY + 10;
+            tooltip.style("left", `${x}px`)
+                .style("top", `${y}px`);
+        })
+
+        // Add mouseout event handler to hide tooltip
+        .on("mouseout", function() {
+            tooltip.style("display", "none");
+        });
+
+    // Add legend
+    const legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", "translate(" + (width - 250) + ", 20)"); // Adjust as needed
+
+const legendRectSize = 60;
+const legendSpacing = 4;
+
+const legendData = [0, 20, 40, 60, 80, 100]; // Adjust based on your data range
+
+legend.selectAll("rect")
+    .data(legendData)
+    .enter().append("rect")
+    .attr("x", 0)
+    .attr("y", (d, i) => i * (legendRectSize + legendSpacing))
+    .attr("width", legendRectSize)
+    .attr("height", legendRectSize)
+    .style("fill", d => colorScale(d));
+
+legend.selectAll("text")
+    .data(legendData)
+    .enter().append("text")
+    .attr("x", legendRectSize + legendSpacing)
+    .attr("y", (d, i) => i * (legendRectSize + legendSpacing) + legendRectSize / 2)
+    .attr("dy", "1em")
+    .style("fill", "white")
+    .text(d => d === 0 ? "No data available" : d + "%")
+    .style("font-size","20px");
+
+}
+
 export async function renderLineChart(countryData) {
     // Clear previous visualization
     d3.select("#line-plot").selectAll("*").remove();

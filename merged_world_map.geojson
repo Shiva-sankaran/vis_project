@@ -12262,7 +12262,7 @@
                 "id": "CHN",
                 "name": "China",
                 "Country": null,
-                "Literarcy rate": null
+                "Literarcy rate": 98
             },
             "geometry": {
                 "type": "MultiPolygon",
@@ -19402,7 +19402,7 @@
                 "id": "GRL",
                 "name": "Greenland",
                 "Country": null,
-                "Literarcy rate": null
+                "Literarcy rate": 94
             },
             "geometry": {
                 "type": "Polygon",
@@ -22650,7 +22650,7 @@
                 "id": "IRN",
                 "name": "Iran",
                 "Country": null,
-                "Literarcy rate": null
+                "Literarcy rate": 92
             },
             "geometry": {
                 "type": "Polygon",
@@ -34205,7 +34205,7 @@
                 "id": "RUS",
                 "name": "Russia",
                 "Country": null,
-                "Literarcy rate": null
+                "Literarcy rate": 97
             },
             "geometry": {
                 "type": "MultiPolygon",
@@ -42024,7 +42024,7 @@
                 "id": "USA",
                 "name": "United States of America",
                 "Country": null,
-                "Literarcy rate": null
+                "Literarcy rate": 99
             },
             "geometry": {
                 "type": "MultiPolygon",

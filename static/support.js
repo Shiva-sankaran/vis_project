@@ -1,4 +1,4 @@
-import { renderIncomeBarPlot, renderLineChart, renderChoroplethMap} from "./plot_fns.js";
+import { renderIncomeBarPlot, renderLineChart, renderChoroplethMap, renderVerticalStackedBarPlot} from "./plot_fns.js";
 import {incomeYAxisColumns} from "./constants.js"
 import { generateDropdownOptions } from "./util.js";
 
@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     generateDropdownOptions(document.getElementById('country-stacked-bar'), countryNamesData.country_names,"any");
 
     renderChoroplethMap(geoData)
+    renderVerticalStackedBarPlot()
 
 
 });

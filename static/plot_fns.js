@@ -302,3 +302,154 @@ export async function renderIncomeBarPlot(data) {
     .style("text-anchor", "middle")
     .text("Income Categories");
 }
+export async function renderVerticalStackedBarPlot() {
+    console.log("Rendering vertical stacked bar charts");
+    var margin = { top: 20, right: 30, bottom: 30, left: 60 };
+    var width = 600 - margin.left - margin.right;
+    var height = 400 - margin.top - margin.bottom;
+    d3.select("#vertical_stacked_bar_plot_svg").selectAll("*").remove();
+
+    // Create SVG for the bar chart
+    const svg = d3.select("#vertical_stacked_bar_plot_svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Dummy data
+    var data = [
+        { year: 2010, diseases: { A: 20, B: 30, C: 40, D: 50, E: 60 } },
+        { year: 2011, diseases: { A: 30, B: 40, C: 50, D: 60, E: 70 } },
+        { year: 2012, diseases: { A: 40, B: 50, C: 60, D: 70, E: 80 } }
+        // Add more data points as needed
+    ];
+
+    // Extracting the keys (disease names) from the first data entry
+    var keys = Object.keys(data[0].diseases);
+
+    // Define colors for diseases
+    var colors = d3.schemeCategory10;
+
+    // Transform the data into the format expected by the stack generator
+    var stackedData = keys.map(function(key) {
+        return {
+            key: key,
+            values: data.map(function(d) {
+                return { x: d.year, y: d.diseases[key] || 0 }; // Replace undefined with 0
+            })
+        };
+    });
+
+    // Set up scales
+    var x = d3.scaleBand()
+        .domain(data.map(function(d) { return d.year; }))
+        .range([0, width])
+        .padding(0.1);
+
+    var y = d3.scaleLinear()
+        .domain([0, d3.max(stackedData, function(d) { return d3.max(d.values, function(d) { return d.y; }); })])
+        .nice()
+        .range([height, 0]);
+
+    // Create groups for each series, rects for each segment
+    var groups = svg.selectAll("g")
+        .data(stackedData)
+        .enter()
+        .append("g")
+        .attr("fill", function(d, i) { return colors[i]; });
+
+    var rects = groups.selectAll("rect")
+        .data(function(d) { return d.values; })
+        .enter()
+        .append("rect")
+        .attr("x", function(d) { return x(d.x) + x.bandwidth() / keys.length * keys.indexOf(d3.select(this.parentNode).datum().key); })
+        .attr("y", function(d) { return y(d.y); })
+        .attr("height", function(d) { return height - y(d.y); }) // Calculate height based on y value
+        .attr("width", x.bandwidth() / keys.length);
+
+    // Add axes
+    var xAxis = d3.axisBottom(x);
+
+    var yAxis = d3.axisLeft(y);
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+}
+
+
+// export async function renderStackedBarPlot() {
+//     console.log("Rendering stacked bar charts");
+//     var margin = { top: 20, right: 30, bottom: 30, left: 60 };
+//     var width = 600 - margin.left - margin.right;
+//     var height = 400 - margin.top - margin.bottom;
+//     d3.select("#stacked_bar_plot_svg").selectAll("*").remove();
+
+//     // Create SVG for the bar chart
+//     const svg = d3.select("#stacked_bar_plot_svg")
+//         .attr("width", width + margin.left + margin.right)
+//         .attr("height", height + margin.top + margin.bottom)
+//         .append("g")
+//         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+//     // Dummy data
+//     var data = [
+//         { category: "A", subbars: [20, 30, 40, 50, 60] },
+//         { category: "B", subbars: [30, 40, 50, 60, 70] },
+//         { category: "C", subbars: [40, 50, 60, 70, 80] }
+//         // Add more data points as needed
+//     ];
+
+//     // Define colors for sub-bars
+//     var colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"];
+
+//     // Transpose the data into layers
+//     var dataset = d3.stack().keys(d3.range(data[0].subbars.length))(data.map(function(d) {
+//         return d.subbars;
+//     }));
+
+//     // Set up scales
+//     var x = d3.scaleBand()
+//         .domain(data.map(function(d) { return d.category; }))
+//         .range([0, width])
+//         .padding(0.1);
+
+//     var y = d3.scaleLinear()
+//         .domain([0, d3.max(dataset, function(d) { return d3.max(d, function(d) { return d[1]; }); })])
+//         .range([height, 0]);
+
+//     // Create groups for each series, rects for each segment
+//     var groups = svg.selectAll("g")
+//         .data(dataset)
+//         .enter()
+//         .append("g")
+//         .attr("fill", function(d, i) { return colors[i]; });
+
+//     var rects = groups.selectAll("rect")
+//         .data(function(d) { return d; })
+//         .enter()
+//         .append("rect")
+//         .attr("x", function(d, i) { return x(data[i].category); })
+//         .attr("y", function(d) { return y(d[1]); })
+//         .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+//         .attr("width", x.bandwidth());
+
+//     // Add axes
+//     var xAxis = d3.axisBottom(x);
+
+//     var yAxis = d3.axisLeft(y);
+
+//     svg.append("g")
+//         .attr("class", "x axis")
+//         .attr("transform", "translate(0," + height + ")")
+//         .call(xAxis);
+
+//     svg.append("g")
+//         .attr("class", "y axis")
+//         .call(yAxis);
+// }

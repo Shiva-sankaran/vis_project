@@ -302,6 +302,7 @@ export async function renderIncomeBarPlot(data) {
     .style("text-anchor", "middle")
     .text("Income Categories");
 }
+
 export async function renderVerticalStackedBarPlot() {
     console.log("Rendering vertical stacked bar charts");
     var margin = { top: 20, right: 30, bottom: 30, left: 60 };
@@ -369,17 +370,35 @@ export async function renderVerticalStackedBarPlot() {
         .enter()
         .append("rect")
         .attr("x", function(d) { return x(d.x) + x.bandwidth() / keys.length * keys.indexOf(d3.select(this.parentNode).datum().key); })
-        .attr("y", function(d) { return y(d.y); })
-        .attr("height", function(d) { return height - y(d.y); }) // Calculate height based on y value
+        .attr("y", function(d) { return height; })
+        .attr("height", function(d) { return 0; }) // Calculate height based on y value
         .attr("width", x.bandwidth() / keys.length)
         // Add mouseover effect
-        .on("mouseover", function() {
-            d3.select(this).attr("fill", "orange");
-        })
-        // Add mouseout effect
-        .on("mouseout", function(d) {
-            d3.select(this).attr("fill", diseaseColors[d3.select(this.parentNode).datum().key]);
+        .transition()
+        .duration(1000)
+        .attr("y", function(d) { return y(d.y); })
+        .attr("height", function(d) { return height - y(d.y); }) // Calculate height based on y value
+        .on('end', function(){
+
+            svg.selectAll('rect')
+            .append('title')
+            .text(d => `${d.y}`);
+
+            svg.selectAll('rect')
+                .on("mouseover", function(d) {
+                    d3.select(this).attr("fill", "gray");
+                    
+                })
+                // Add mouseout effect
+                .on("mouseout", function(d) {
+                    d3.select(this).attr("fill", diseaseColors[d3.select(this.parentNode).datum().key]);
+        
+                    // Remove text label
+                    svg.select(".tooltip").remove();
+                });
+
         });
+        
 
     // Add axes
     var xAxis = d3.axisBottom(x);
@@ -395,75 +414,3 @@ export async function renderVerticalStackedBarPlot() {
         .attr("class", "y axis")
         .call(yAxis);
 }
-
-
-// export async function renderStackedBarPlot() {
-//     console.log("Rendering stacked bar charts");
-//     var margin = { top: 20, right: 30, bottom: 30, left: 60 };
-//     var width = 600 - margin.left - margin.right;
-//     var height = 400 - margin.top - margin.bottom;
-//     d3.select("#stacked_bar_plot_svg").selectAll("*").remove();
-
-//     // Create SVG for the bar chart
-//     const svg = d3.select("#stacked_bar_plot_svg")
-//         .attr("width", width + margin.left + margin.right)
-//         .attr("height", height + margin.top + margin.bottom)
-//         .append("g")
-//         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-//     // Dummy data
-//     var data = [
-//         { category: "A", subbars: [20, 30, 40, 50, 60] },
-//         { category: "B", subbars: [30, 40, 50, 60, 70] },
-//         { category: "C", subbars: [40, 50, 60, 70, 80] }
-//         // Add more data points as needed
-//     ];
-
-//     // Define colors for sub-bars
-//     var colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"];
-
-//     // Transpose the data into layers
-//     var dataset = d3.stack().keys(d3.range(data[0].subbars.length))(data.map(function(d) {
-//         return d.subbars;
-//     }));
-
-//     // Set up scales
-//     var x = d3.scaleBand()
-//         .domain(data.map(function(d) { return d.category; }))
-//         .range([0, width])
-//         .padding(0.1);
-
-//     var y = d3.scaleLinear()
-//         .domain([0, d3.max(dataset, function(d) { return d3.max(d, function(d) { return d[1]; }); })])
-//         .range([height, 0]);
-
-//     // Create groups for each series, rects for each segment
-//     var groups = svg.selectAll("g")
-//         .data(dataset)
-//         .enter()
-//         .append("g")
-//         .attr("fill", function(d, i) { return colors[i]; });
-
-//     var rects = groups.selectAll("rect")
-//         .data(function(d) { return d; })
-//         .enter()
-//         .append("rect")
-//         .attr("x", function(d, i) { return x(data[i].category); })
-//         .attr("y", function(d) { return y(d[1]); })
-//         .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-//         .attr("width", x.bandwidth());
-
-//     // Add axes
-//     var xAxis = d3.axisBottom(x);
-
-//     var yAxis = d3.axisLeft(y);
-
-//     svg.append("g")
-//         .attr("class", "x axis")
-//         .attr("transform", "translate(0," + height + ")")
-//         .call(xAxis);
-
-//     svg.append("g")
-//         .attr("class", "y axis")
-//         .call(yAxis);
-// }

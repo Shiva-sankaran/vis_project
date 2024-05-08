@@ -328,7 +328,13 @@ export async function renderVerticalStackedBarPlot() {
     var keys = Object.keys(data[0].diseases);
 
     // Define colors for diseases
-    var colors = d3.schemeCategory10;
+    var diseaseColors = {
+        A: "#1f77b4", // blue
+        B: "#ffea00", // yellow
+        C: "#2ca02c", // green
+        D: "#d62728", // red
+        E: "#9467bd" // purple
+    };
 
     // Transform the data into the format expected by the stack generator
     var stackedData = keys.map(function(key) {
@@ -356,7 +362,7 @@ export async function renderVerticalStackedBarPlot() {
         .data(stackedData)
         .enter()
         .append("g")
-        .attr("fill", function(d, i) { return colors[i]; });
+        .attr("fill", function(d) { return diseaseColors[d.key]; });
 
     var rects = groups.selectAll("rect")
         .data(function(d) { return d.values; })
@@ -365,7 +371,15 @@ export async function renderVerticalStackedBarPlot() {
         .attr("x", function(d) { return x(d.x) + x.bandwidth() / keys.length * keys.indexOf(d3.select(this.parentNode).datum().key); })
         .attr("y", function(d) { return y(d.y); })
         .attr("height", function(d) { return height - y(d.y); }) // Calculate height based on y value
-        .attr("width", x.bandwidth() / keys.length);
+        .attr("width", x.bandwidth() / keys.length)
+        // Add mouseover effect
+        .on("mouseover", function() {
+            d3.select(this).attr("fill", "orange");
+        })
+        // Add mouseout effect
+        .on("mouseout", function(d) {
+            d3.select(this).attr("fill", diseaseColors[d3.select(this.parentNode).datum().key]);
+        });
 
     // Add axes
     var xAxis = d3.axisBottom(x);

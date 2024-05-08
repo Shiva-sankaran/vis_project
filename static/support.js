@@ -1,4 +1,4 @@
-import { renderIncomeBarPlot, renderLineChart, renderChoroplethMap, renderVerticalStackedBarPlot} from "./plot_fns.js";
+import { renderIncomeBarPlot, renderLineChart, renderChoroplethMap, renderVerticalStackedBarPlot, renderMDSVariablePlot } from "./plot_fns.js";
 import {incomeYAxisColumns} from "./constants.js"
 import { generateDropdownOptions } from "./util.js";
 
@@ -44,6 +44,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     renderChoroplethMap(geoData)
     renderVerticalStackedBarPlot()
+
+    const MDSCorrData = await fetchData('/MDS_corr', {});
+
+    renderMDSVariablePlot(MDSCorrData.MDS_var_vectors, MDSCorrData.feature_names,MDSCorrData.MDS_correlation_matrix);
 
 
 });

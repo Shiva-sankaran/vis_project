@@ -12,3 +12,5 @@ export const incomeYAxisColumns = [
                                 'Depression (%)',
                                 'Alcohol use disorders (%)'
                             ];
+
+export const slider_start_value = 0.2

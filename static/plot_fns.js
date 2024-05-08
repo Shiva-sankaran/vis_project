@@ -1,6 +1,6 @@
 // import { findElbowPoint,updateBiPlot,updateScatterMatrix,updateImpAttr } from "./support.js";
 
-
+import {slider_start_value} from "./constants.js"
 async function sendData(url, data) {
     try {
         const response = await fetch(url, {
@@ -413,4 +413,251 @@ export async function renderVerticalStackedBarPlot() {
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis);
+}
+
+let threshold_mem = slider_start_value
+export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_matrix,threshold=threshold_mem) {
+    console.log("IN UPDATE BIPLOT");
+    console.log(feature_names);
+    const svg = d3.select("#corr_plot_svg");
+    svg.selectAll("*").remove();
+    console.log("THRESHODL MEM: ",threshold_mem)
+
+    // const plotGroup = d3.select("#screeplot").select("g");
+
+    // // Remove existing MDS variable plot elements
+    // plotGroup.selectAll(".point").remove();
+
+    const xval = 0;
+    const yval = 1;
+
+    console.log("value", xval, yval);
+
+    const margin = { top: 80, right: 100, bottom: 50, left: 100 };
+    const width = +svg.attr("width") - margin.left - margin.right;
+    const height = +svg.attr("height") - margin.top - margin.bottom;
+
+    const xExtent = d3.extent(X_pca1, d => d[0]);
+    const yExtent = d3.extent(X_pca1, d => d[1]);
+
+    const maxExtent = Math.max(Math.abs(xExtent[0]), Math.abs(xExtent[1]), Math.abs(yExtent[0]), Math.abs(yExtent[1]));
+
+    const xScale = d3.scaleLinear()
+        .domain([-maxExtent, maxExtent])
+        .range([0, width]);
+
+    const yScale = d3.scaleLinear()
+        .domain([-maxExtent, maxExtent])
+        .range([height, 0]);
+
+
+    const g = svg.append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // g.append("text")
+    //     .attr("x", width - 250)
+    //     .attr("y", margin.top - 140)
+    //     .style("font-weight", "bold")
+    //     .style("fill", "#ff9933")
+    //     .text("Legend for Loading Vectors");
+
+    
+    const VarColors = ["teal", "lightblue", "coral", "lightgreen", "violet", "orange", "pink", "gold", "lightgray", "lightsteelblue", "lightcoral"];
+
+    const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width - margin.right - 10}, 15)`);
+
+    legend.selectAll("text")
+        .data(X_pca1)
+        .enter().append("text")
+        .attr("x", 15)
+        .attr("y", (d, i) => i * 20 + 9)
+        .text((d, i) => `${feature_names[i]}`) // Map short names to full names
+        .style("fill", (d, i) => `${VarColors[i]}`)
+        .style("font-size", "15px")
+        .attr("alignment-baseline", "middle");
+
+
+    // Draw circles for each data point
+    const circles = g.selectAll("circle.point") // Select circles with class "point"
+    .data(X_pca1)
+    .enter().append("circle")
+    .attr("class", "point") // Add class "point" to circles
+    .attr("cx", d => xScale(d[xval]))
+    .attr("cy", d => yScale(d[yval]))
+    .attr("r", 9)
+    .attr("fill", (d, i) => VarColors[i])
+    .attr("opacity", 0.7)
+    .attr("feature", (d, i) => feature_names[i])
+
+    .on("click", function () {
+        const featureName = d3.select(this).attr("feature"); // Retrieve feature name attribute
+        console.log("Clicked feature:", featureName);
+        const clickedCircle = d3.select(this);
+        const text = g.append("text")
+            .attr("x", clickedCircle.attr("cx"))
+            .attr("y", clickedCircle.attr("cy"))
+            .attr("dy", -15) // Offset the text slightly above the circle
+            .style("fill", "white")
+            .style("font-size", "12px")
+            .attr("class", "circle-text") // Assign a class to the text element
+            .text(order_n);
+        order_n = order_n + 1;
+        feature_order.push(featureName);
+        if (order_n === 8) {
+            console.log("Updating PCP", feature_order);
+            const message = g.append("text")
+        .attr("x", 50)
+        .attr("y", 50)
+        .attr("text-anchor", "middle")
+        .style("fill", "white")
+        .style("font-size", "24px")
+        .text("PCP Order Updated");
+    setTimeout(() => {
+        message.remove(); // Remove the message after 5 seconds
+    }, 5000); // Duration in milliseconds (5 seconds)
+
+            updatePCPOrder(feature_order);
+            // Remove all text elements next to circles
+            g.selectAll(".circle-text").remove();
+    
+            // Reset order_n back to 0
+            order_n = 1;
+            feature_order = [];
+        }
+    })
+    
+    
+    .on("mouseover", function () {
+        d3.select(this).attr("r", 12); // Increase size on hover
+    })
+    .on("mouseout", function () {
+        d3.select(this).attr("r", 9); // Reset size on mouseout
+    })
+    .append("title")
+    .text((d, i) => `${feature_names[i]}: (${d[xval]}, ${d[yval]})`);
+
+    // Draw lines between all pairs of variables
+    for (let i = 0; i < X_pca1.length; i++) {
+        for (let j = i + 1; j < X_pca1.length; j++) {
+            const correlation = correlation_matrix[i][j]; // Get correlation value
+            // let threshold = 0
+            if (Math.abs(correlation) >= threshold) {
+                const opacity = Math.abs(correlation); // Opacity based on absolute correlation value
+    
+                const textX = (xScale(X_pca1[i][xval]) + xScale(X_pca1[j][xval])) / 2; // Calculate text x position
+                const textY = (yScale(X_pca1[i][yval]) + yScale(X_pca1[j][yval])) / 2; // Calculate text y position
+    
+                const line = g.append("line")
+                    .attr("x1", xScale(X_pca1[i][xval]))
+                    .attr("y1", yScale(X_pca1[i][yval]))
+                    .attr("x2", xScale(X_pca1[j][xval]))
+                    .attr("y2", yScale(X_pca1[j][yval]))
+                    .style("stroke", function(d) { return correlation > 0 ? "green" : "red"; }) // Fixed color
+                    .style("stroke-width", 5) // Constant width
+                    .style("opacity", opacity); // Set opacity based on correlation value
+    
+                // Append text marker (hidden by default)
+                const text = g.append("text")
+                    .attr("x", textX)
+                    .attr("y", textY)
+                    .attr("dy", -5) // Offset the text slightly above the line
+                    .style("fill", "white")
+                    .style("font-size", "12px")
+                    .text(`${feature_names[i]} - ${feature_names[j]}: ${correlation.toFixed(2)}`)
+                    .style("display", "none"); // Hide text initially
+    
+                // Show text on line hover
+                line.on("mouseover", function () {
+                    console.log("HOVERING")
+                    text.style("display", "block");
+                })
+                .on("mouseout", function () {
+                    text.style("display", "none");
+                });
+            }
+        }
+    }
+
+
+    g.append("g")
+        .attr("transform", `translate(0, ${height / 2})`)
+        .call(d3.axisBottom(xScale));
+
+    g.append("g")
+        .attr("transform", `translate(${width / 2}, 0)`)
+        .call(d3.axisLeft(yScale));
+
+    
+        const sliderGroup = g.append("g")
+        .attr("class", "slider")
+        .attr("transform", `translate(${width / 2 + 100}, ${height + 20})`);
+    
+    // Append axis line
+    const axisLine = sliderGroup.append("line")
+        .attr("class", "axis-line")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", 200)
+        .attr("y2", 0)
+        .style("stroke", "white")
+        .style("stroke-width", 2); // Adjust line width as needed
+    
+    // Add ticks for minimum and maximum values
+    const minTick = sliderGroup.append("text")
+        .attr("class", "slider-tick")
+        .attr("text-anchor", "middle")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("dy", "1.5em")
+        .style("fill", "white")
+        .text("0");
+    
+    const maxTick = sliderGroup.append("text")
+        .attr("class", "slider-tick")
+        .attr("text-anchor", "middle")
+        .attr("x", 200)
+        .attr("y", 0)
+        .attr("dy", "1.5em")
+        .style("fill", "white")
+        .text("1");
+    
+    // Add text element to display slider value
+    const sliderValueText = sliderGroup.append("text")
+        .attr("class", "slider-value")
+        .attr("text-anchor", "middle")
+        .attr("x", 100) // Position at the center initially
+        .attr("y", -20) // Position above the slider
+        .style("fill", "white")
+        .text(threshold_mem.toFixed(2)); // Initial text (slider value)
+    
+    // Add slider handle
+    const handle = sliderGroup.append("circle")
+        .attr("class", "handle")
+        .attr("r", 9)
+        .style("fill", "white")
+        .attr("cx", threshold_mem * 200) // Initial position based on threshold_mem
+        .call(d3.drag()
+            .on("end", function(event) { // Use "end" event instead of "drag"
+                const x = Math.max(0, Math.min(200, event.x)); // Ensure handle stays within slider bounds
+                handle.attr("cx", x);
+    
+                // Map x-coordinate to slider value between 0 and 1
+                const sliderValue = x / 200;
+    
+                // Update threshold memory variable
+                threshold_mem = sliderValue;
+                console.log("THRESHOLD SET TO :", threshold_mem)
+    
+                // Update slider value text
+                sliderValueText.text(threshold_mem.toFixed(2));
+    
+                // Update MDS plot with new threshold value
+                updateMDSVariable(X_pca1, cluster_labels, feature_names, correlation_matrix, sliderValue);
+            }));
+    
+
+
+
 }

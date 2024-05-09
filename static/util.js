@@ -40,7 +40,7 @@ function isCategorical(columnName) {
 return columnDataTypes[columnName];
 }
   
-function generateDropdownOptions(dropdown,columnNames,type) {
+function generateDropdownOptions(dropdown,columnNames,type,selected_text = "") {
     console.log("LOGGIN")
     console.log(columnNames)
     dropdown.innerHTML = ''; // Clear existing options
@@ -56,7 +56,16 @@ function generateDropdownOptions(dropdown,columnNames,type) {
         option.value = column;
         option.textContent = column;
         dropdown.appendChild(option);
+        if (column === selected_text) {
+          option.selected = true;
+       }
       }
-    });
+
+      
+    }
+    
+    );
+
+    
   }
 export { isCategorical, generateDropdownOptions,columnMetadata };

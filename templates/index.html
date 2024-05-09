@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCA Visualization</title>
+    <title>Socioeconomic and Health Indicators</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <link rel="stylesheet" href="../static/styles.css">
     <script type="module" src="../static/plot_fns.js"></script>
@@ -13,7 +13,7 @@
 
 <body>
   <header>
-    <h1>PCA Visualization</h1>
+    <h1>Socioeconomic and Health Indicators</h1>
     <nav>
       <ul>
         <li><a href="references">References</a></li>
@@ -27,20 +27,8 @@
             <h2>Line Plot</h2>
             <svg id="line-plot" width="800" height="800"></svg>
         </div>
-        <div style="position: absolute; bottom: 100px;">
 
-          <label class="dropdown-label" for="y-col-attr-line" style="color: white;">Y Axis Column:</label>
-          <select id="y-col-attr-line" class="dropdown-select">
-          </select><br>
-
-          <label class="dropdown-label" for="country-line" style="color: white;">Country:</label>
-          <select id="country-line" class="dropdown-select">  
-          </select>
-
-      </div>
     </section>
-
-
 
     <section id="bar_plot" class="graph-section">
       
@@ -50,38 +38,81 @@
 
             <div style="position: absolute; bottom: 70px;">
 
+              <div class="slider-container">
+                <input type="range" min="200" max="300000" value="100000" class="slider" id="lowThreshold">
+                <p>Low Threshold: <span id="lowSliderValue">1000</span></p>
+              </div>
               
-              <label for="year">Year:</label>
-              <input type="number" id="year" value="2001"><br>
-  
-              <label for="lowThreshold">Low Threshold:</label>
-              <input type="number" id="lowThreshold" value="1000"><br>
-  
-              <label for="midThreshold">Mid Threshold:</label>
-              <input type="number" id="midThreshold" value="10000"><br>
-  
-              <label class="dropdown-label" for="y-col-attr" style="color: white;">Y Axis Column:</label>
-              <select id="y-col-attr" class="dropdown-select">
-              </select>
+              <div class="slider-container">
+                <input type="range" min="200" max="5000000" value="500000" class="slider" id="midThreshold">
+                <p>Mid Threshold: <span id="midSliderValue">10000</span></p>
+              </div>
 
           </div>
-            
+
         </div>
     </section>
 
+  </div>
+
+
+
+  
+
+  <div class="dropdown-container">
+    <div class="label">Country:</div>
+    <div class="custom-select">
+      <select id="country-dropdown">
+      </select>
+    </div>
+  </div>
+
+  <div class="dropdown-container">
+    <div class="label">Attribute:</div>
+    <div class="custom-select">
+      <select id="attribute-dropdown">
+
+      </select>
+    </div>
+  </div>
+
+  <div class="graph-sections-container" >
+    <div class="slider-container center-slider"  style="position: absolute;left: -35px;">
+      <input type="range" min="2000" max="2016" value="2001" class="slider" id="year">
+      <p>Year: <span id="yearValue">2001</span></p>
+    </div>
+    
+    <section id="geo-spatial" class="graph-section">
+        <div class="feature" style="width: max-content; height: 1600px;">
+            <h2>GeoSpatial</h2>
+            <svg id="map-svg" width="2800" height="1200"></svg>
+        </div>
+    </section>
+
+  </div> 
+
+  <div class="graph-sections-container">
     <section id="stacked_bar_plot" class="graph-section">
-      
       <div class="feature" style="width: 1158px; height: 1200px;">
           <h2>Stacked Bar Plot</h2>
           <svg id="vertical_stacked_bar_plot_svg" width="800" height="800"></svg>
 
           <div style="position: absolute; bottom: 70px;">
+            
+        </div>
+          
+      </div>
+    </section>
+  
+    <section id="corr_plot" class="graph-section">
+        
+      <div class="feature" style="width: 1158px; height: 1200px;">
+          <h2>Correlation Plot</h2>
+          <svg id="corr_plot_svg" width="800" height="800"></svg>
 
-            <label for="year">Year:</label>
-            <input type="number" id="year" value="2001"><br>
+          <div style="position: absolute; bottom: 70px;">
 
-            <label class="dropdown-label" for="country-stacked-bar" style="color: white;">Country:</label>
-            <select id="country-stacked-bar" class="dropdown-select">  
+          
             </select>
             
         </div>
@@ -90,38 +121,9 @@
     </section>
   </div>
 
-  <section id="corr_plot" class="graph-section">
-      
-    <div class="feature" style="width: 1158px; height: 1200px;">
-        <h2>Correlation Plot</h2>
-        <svg id="corr_plot_svg" width="800" height="800"></svg>
-
-        <div style="position: absolute; bottom: 70px;">
-
-          <label for="year">Year:</label>
-          <input type="number" id="year" value="2001"><br>
-
-          <label class="dropdown-label" for="country-stacked-bar" style="color: white;">Country:</label>
-          <select id="country-stacked-bar" class="dropdown-select">  
-          </select>
-          
-      </div>
-        
-    </div>
-  </section>
-</div>
 
 
-
-  <div class="graph-sections-container" style="margin-left: 0px; width: 2400px;">
-    <section id="geo-spatial" class="graph-section">
-        <div class="feature" style="width: max-content;">
-            <h2>GeoSpatial</h2>
-            <svg id="map-svg" width="3400" height="1200"></svg>
-        </div>
-    </section>
-
-  </div> 
+  
 
   <aside class="side-panel">
     <h2>Additional Information</h2>
@@ -131,10 +133,40 @@
   <footer>
     <div class="footer-content">
       <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
-      <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
-      <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
+      <!-- <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p> -->
+      <p style="color: #ff9933;">Mail id: adhoni@cs.stonybrook.edu</p>
     </div>
   </footer>
+
+  <script>
+    var lowSlider = document.getElementById("lowThreshold");
+  var lowOutput = document.getElementById("lowSliderValue");
+  lowOutput.innerHTML = lowSlider.value; // Display the default slider value
+
+  // Update the current slider value (each time you drag the slider handle)
+  lowSlider.oninput = function() {
+    lowOutput.innerHTML = this.value;
+  }
+
+  var highSlider = document.getElementById("midThreshold");
+  var highOutput = document.getElementById("midSliderValue");
+  highOutput.innerHTML = highSlider.value; // Display the default slider value
+
+  // Update the current slider value (each time you drag the slider handle)
+  highSlider.oninput = function() {
+    highOutput.innerHTML = this.value;
+  }
+
+  var yearSlider = document.getElementById("year");
+  var yearOutput = document.getElementById("yearValue");
+  highOutput.innerHTML = highSlider.value; // Display the default slider value
+
+  // Update the current slider value (each time you drag the slider handle)
+  yearSlider.oninput = function() {
+    yearOutput.innerHTML = this.value;
+  }
+  </script>
+  
 </body>
 
 </html>

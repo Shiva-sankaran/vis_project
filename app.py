@@ -24,7 +24,7 @@ df = pd.read_csv("final_comb_data.csv")
 num_df = df[numerical_columns]
 X = num_df.values.tolist()
 
-with open('merged_world_map.geojson', 'r') as file:
+with open('merged_world_map_new.geojson', 'r') as file:
     geojson_data = json.load(file)
 
 
@@ -40,7 +40,28 @@ def ref():
 @app.route('/get_geojson_data', methods=['POST'])
 def get_geojson_data():
     print("HII")
-    return jsonify(geojson_data)
+
+    # year = 2020  # Change this to the desired year
+    year = int(request.form.get('year'))
+
+    filtered_features = []
+    for feature in geojson_data['features']:
+        new_feature = feature.copy()
+        properties = new_feature['properties']
+        new_properties = properties.copy()
+        if(str(year) not in new_properties['data']):
+            new_properties['data'][str(year)] = dict.fromkeys(new_properties['data'][list(new_properties['data'].keys())[0]], 0)
+        
+        new_properties.update(new_properties['data'][str(year)])
+        del new_properties['data']
+        new_feature['properties'] = new_properties
+        filtered_features.append(new_feature)
+
+        
+
+    filtered_geojson_data = {'type': 'FeatureCollection', 'features': filtered_features}
+    return jsonify(filtered_geojson_data)
+    # return jsonify(geojson_data)
 
 @app.route('/get_data', methods=['POST'])
 def get_data():
@@ -49,6 +70,7 @@ def get_data():
 
 @app.route('/get_income_data', methods=['POST'])
 def get_income_data():
+    print("IN INCOME DATA")
     low_threshold = int(request.form.get('low_threshold'))
     mid_threshold = int(request.form.get('mid_threshold'))
     year = int(request.form.get('year'))
@@ -64,12 +86,13 @@ def get_income_data():
     mid_income_avg = mid_income_countries.mean().to_dict()
     high_income_avg = high_income_countries.mean().to_dict()
 
+
     data = {
         'low_income_avg': low_income_avg,
         'mid_income_avg': mid_income_avg,
         'high_income_avg': high_income_avg
     }
-
+    print("RETURING data:",data)
     return jsonify(data)
 
 
@@ -84,7 +107,9 @@ def get_country_names():
 
 @app.route('/choose_country', methods=['POST'])
 def choose_country():
-    country_df = df[df['Country'] == 'Albania']
+    # country_name = request.form.get('country')
+    print(request.form.get('country'))
+    country_df = df[df['Country'] == request.form.get('country')]
     return jsonify(country_df.to_dict(orient='records'))
 
 
@@ -116,7 +141,34 @@ def MDS_corr():
 
 
 
+@app.route('/stacked_barcharts', methods=['POST'])
+def stacked_barcharts():
+
+    mental_cols = ["Year",'Alcohol use disorders (%)','Bipolar disorder (%)', 'Eating disorders (%)', 'Depression (%)','Drug use disorders (%)']
+    print(request.form.get('country'))
+    country_df = df[df['Country'] == request.form.get('country')]
+    selected_df = country_df[mental_cols]
+    data_list = selected_df.to_dict(orient='records')
+    final_data = []
+    for item in data_list:
+        final_data.append({'year':item["Year"],"diseases":{
+            'Alcohol use disorders (%)':item["Alcohol use disorders (%)"],
+            'Bipolar disorder (%)':item['Bipolar disorder (%)'], 
+            'Eating disorders (%)':item['Eating disorders (%)'], 
+            'Depression (%)':item['Depression (%)'],
+            'Drug use disorders (%)':item['Drug use disorders (%)']
+        } })
+
+    return jsonify(final_data)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 
 # Clean code # wink wink
+    
+# Fix missing data in geospatial
+# Remove country selection dropdown
+# Font sizes
+# Make everything more viewable
+

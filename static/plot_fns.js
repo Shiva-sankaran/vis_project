@@ -1,5 +1,5 @@
 // import { findElbowPoint,updateBiPlot,updateScatterMatrix,updateImpAttr } from "./support.js";
-
+import {handleMapClick} from "./support.js"
 import {slider_start_value} from "./constants.js"
 async function sendData(url, data) {
     try {
@@ -31,10 +31,12 @@ function getColor(value) {
     return colorScale(value);
 }
 
+let country_name = ""
 export function renderChoroplethMap(geoData) {
     // Clear previous visualization
     d3.select("#map-svg").selectAll("*").remove();
-
+    console.log("GEO DATA: ",geoData)
+    var yAxisAttribute = document.getElementById('attribute-dropdown').value;
     // Set up the SVG container
     const svg = d3.select("#map-svg");
     // const width = 1200; // Set a larger width
@@ -67,76 +69,96 @@ export function renderChoroplethMap(geoData) {
 
     // Draw the map with paths
     svg.selectAll("path")
-        .data(geoData.features)
-        .enter().append("path")
-        .attr("d", pathGenerator)
-        .attr("fill", d => {
-            // Check if properties exist before accessing them
-            if (d.properties && d.properties['Literarcy rate']) {
-                return getColor(d.properties['Literarcy rate']);
-            } else {
-                return "lightgray"; // Or any other default color
-            }
-        })
-        .attr("stroke", "white")
-        .attr("stroke-width", 0.5)
-        // Add mouseover event handler
-        .on("mouseover", function(event, d) {
-            // Format the tooltip content with country name and literacy rate
-            const tooltipContent = `<b>${d.properties.name}</b><br>Literarcy Rate: ${d.properties['Literarcy rate']}%`;
+    .data(geoData.features)
+    .enter().append("path")
+    .attr("d", pathGenerator)
+    .attr("fill", d => {
+        // Check if properties exist before accessing them
+        if (d.properties && d.properties[yAxisAttribute]) {
+            return getColor(d.properties[yAxisAttribute]);
+        } else {
+            return "lightgray"; // Or any other default color
+        }
+    })
+    .attr("stroke", "white")
+    .attr("stroke-width", 0.5)
+    // Add mouseover event handler
+    .on("mouseover", function(event, d) {
+        // Format the tooltip content with country name and literacy rate
+        const tooltipContent = `<b>${d.properties.name}</b><br>${d.properties[yAxisAttribute]}$: ${d.properties[yAxisAttribute]}%`;
 
-            tooltip.style("display", "block")
-                .html(tooltipContent);
+        tooltip.style("display", "block")
+            .html(tooltipContent);
 
-            // Position tooltip near the mouse
-            const x = event.pageX + 10;
-            const y = event.pageY + 10;
-            tooltip.style("left", `${x}px`)
-                .style("top", `${y}px`);
-        })
+        // Position tooltip near the mouse
+        const x = event.pageX + 10;
+        const y = event.pageY + 10;
+        tooltip.style("left", `${x}px`)
+            .style("top", `${y}px`);
+    })
+    // Add mouseout event handler to hide tooltip
+    .on("mouseout", function() {
+        tooltip.style("display", "none");
+    })
+    // Add onclick event handler
+    .on("click", function(event, d) {
+        // Remove highlight from previously clicked countries
+        svg.selectAll("path")
+            .attr("fill", d => {
+                if (d.properties && d.properties[yAxisAttribute]) {
+                    return getColor(d.properties[yAxisAttribute]);
+                } else {
+                    return "lightgray"; // Or any other default color
+                }
+            });
 
-        // Add mouseout event handler to hide tooltip
-        .on("mouseout", function() {
-            tooltip.style("display", "none");
-        });
+        // Highlight the clicked country
+        d3.select(this)
+            .attr("fill", "orange"); // Change color to highlight color
+
+        // Get the chosen value (for example, the country name)
+        const chosenValue = d.properties.name;
+        // Call the imported function with the chosen value
+        handleMapClick(chosenValue);
+    });
 
     // Add legend
     const legend = svg.append("g")
     .attr("class", "legend")
     .attr("transform", "translate(" + (width - 250) + ", 20)"); // Adjust as needed
 
-const legendRectSize = 60;
-const legendSpacing = 4;
+    const legendRectSize = 60;
+    const legendSpacing = 4;
 
-const legendData = [0, 20, 40, 60, 80, 100]; // Adjust based on your data range
+    const legendData = [0, 20, 40, 60, 80, 100]; // Adjust based on your data range
 
-legend.selectAll("rect")
-    .data(legendData)
-    .enter().append("rect")
-    .attr("x", 0)
-    .attr("y", (d, i) => i * (legendRectSize + legendSpacing))
-    .attr("width", legendRectSize)
-    .attr("height", legendRectSize)
-    .style("fill", d => colorScale(d));
+    legend.selectAll("rect")
+        .data(legendData)
+        .enter().append("rect")
+        .attr("x", 0)
+        .attr("y", (d, i) => i * (legendRectSize + legendSpacing))
+        .attr("width", legendRectSize)
+        .attr("height", legendRectSize)
+        .style("fill", d => colorScale(d));
 
-legend.selectAll("text")
-    .data(legendData)
-    .enter().append("text")
-    .attr("x", legendRectSize + legendSpacing)
-    .attr("y", (d, i) => i * (legendRectSize + legendSpacing) + legendRectSize / 2)
-    .attr("dy", "1em")
-    .style("fill", "white")
-    .text(d => d === 0 ? "No data available" : d + "%")
-    .style("font-size","20px");
+    legend.selectAll("text")
+        .data(legendData)
+        .enter().append("text")
+        .attr("x", legendRectSize + legendSpacing)
+        .attr("y", (d, i) => i * (legendRectSize + legendSpacing) + legendRectSize / 2)
+        .attr("dy", "1em")
+        .style("fill", "white")
+        .text(d => d === 0 ? "No data available" : d + "%")
+        .style("font-size","20px");
 
-}
+    }
 
 export async function renderLineChart(countryData) {
     // Clear previous visualization
     d3.select("#line-plot").selectAll("*").remove();
 
     // Get user input values
-    var yAxisAttribute = document.getElementById('y-col-attr-line').value;
+    var yAxisAttribute = document.getElementById('attribute-dropdown').value;
 
     // Define margin, width, and height for the chart
     const margin = { top: 20, right: 30, bottom: 50, left: 50 };
@@ -222,10 +244,11 @@ export async function renderLineChart(countryData) {
 // Have to add slider and make it prettier
 export async function renderIncomeBarPlot(data) {
     // Clear previous visualization
+    console.log("RENDERING INCOME")
     d3.select("#bar_plot_svg").selectAll("*").remove();
 
     // Get user input values
-    var yAxisAttribute = document.getElementById('y-col-attr').value;
+    var yAxisAttribute = document.getElementById('attribute-dropdown').value;
 
     // Define attributes for each income category
     const incomeCategories = ['low_income_avg', 'mid_income_avg', 'high_income_avg'];
@@ -303,11 +326,12 @@ export async function renderIncomeBarPlot(data) {
     .text("Income Categories");
 }
 
-export async function renderVerticalStackedBarPlot() {
+export async function renderVerticalStackedBarPlot(data) {
     console.log("Rendering vertical stacked bar charts");
+    console.log(data)
     var margin = { top: 20, right: 30, bottom: 30, left: 60 };
-    var width = 600 - margin.left - margin.right;
-    var height = 400 - margin.top - margin.bottom;
+    var width = 800 - margin.left - margin.right;
+    var height = 800 - margin.top - margin.bottom;
     d3.select("#vertical_stacked_bar_plot_svg").selectAll("*").remove();
 
     // Create SVG for the bar chart
@@ -318,23 +342,30 @@ export async function renderVerticalStackedBarPlot() {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Dummy data
-    var data = [
-        { year: 2010, diseases: { A: 20, B: 30, C: 40, D: 50, E: 60 } },
-        { year: 2011, diseases: { A: 30, B: 40, C: 50, D: 60, E: 70 } },
-        { year: 2012, diseases: { A: 40, B: 50, C: 60, D: 70, E: 80 } }
-        // Add more data points as needed
-    ];
+    // var data = [
+    //     { year: 2010, diseases: { A: 20, B: 30, C: 40, D: 50, E: 60 } },
+    //     { year: 2011, diseases: { A: 30, B: 40, C: 50, D: 60, E: 70 } },
+    //     { year: 2012, diseases: { A: 40, B: 50, C: 60, D: 70, E: 80 } }
+    //     // Add more data points as needed
+    // ];
 
     // Extracting the keys (disease names) from the first data entry
     var keys = Object.keys(data[0].diseases);
-
+    console.log("Keys:",keys)
     // Define colors for diseases
+    // var diseaseColors = {
+    //     A: "#1f77b4", // blue
+    //     B: "#ffea00", // yellow
+    //     C: "#2ca02c", // green
+    //     D: "#d62728", // red
+    //     E: "#9467bd" // purple
+    // };
     var diseaseColors = {
-        A: "#1f77b4", // blue
-        B: "#ffea00", // yellow
-        C: "#2ca02c", // green
-        D: "#d62728", // red
-        E: "#9467bd" // purple
+        "Alcohol use disorders (%)": "#1f77b4", // blue
+        'Bipolar disorder (%)': "#ffea00", // yellow
+        'Eating disorders (%)': "#2ca02c", // green
+        'Depression (%)': "#d62728", // red
+        'Drug use disorders (%)': "#9467bd" // purple
     };
 
     // Transform the data into the format expected by the stack generator
@@ -654,7 +685,7 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
                 sliderValueText.text(threshold_mem.toFixed(2));
     
                 // Update MDS plot with new threshold value
-                updateMDSVariable(X_pca1, cluster_labels, feature_names, correlation_matrix, sliderValue);
+                renderMDSVariablePlot(X_pca1, feature_names, correlation_matrix, sliderValue);
             }));
     
 

@@ -13,10 +13,11 @@
 
 <body>
   <header>
-    <h1>Socioeconomic and Health Indicators</h1>
+    <h1 style="font-size: 60px;">Socioeconomic and Health Indicators</h1>
     <nav>
       <ul>
-        <li><a href="references">References</a></li>
+        <li style="font-size: 32px;"><a href="references">References</a></li>
+        <li style="font-size: 32px;"><a href="team">Team</a></li>
       </ul>
     </nav>
   </header>
@@ -24,8 +25,8 @@
   <div class="graph-sections-container">
     <section id="line_plot" class="graph-section">
         <div class="feature" style="width: 1158px; height: 1200px;">
-            <h2>Line Plot</h2>
-            <svg id="line-plot" width="800" height="800"></svg>
+            <h2 id="line-h" style="font-size: 32px;">Variation of Deaths over time for Chile</h2>
+            <svg id="line-plot" width="1000" height="1000"></svg>
         </div>
 
     </section>
@@ -33,8 +34,8 @@
     <section id="bar_plot" class="graph-section">
       
         <div class="feature" style="width: 1158px; height: 1200px;">
-            <h2>Bar Plot</h2>
-            <svg id="bar_plot_svg" width="800" height="800"></svg>
+            <h2 id="bar-h" style="font-size: 32px;">Comparision Deaths by Income groups during 2001</h2>
+            <svg id="bar_plot_svg" width="1000" height="800"></svg>
 
             <div style="position: absolute; bottom: 70px;">
 
@@ -58,33 +59,26 @@
 
 
   
-
   <div class="dropdown-container">
-    <div class="label">Country:</div>
-    <div class="custom-select">
-      <select id="country-dropdown">
+    <div class="label" style="font-size: 30px;">Attribute:</div>
+    <div class="custom-select" style="width: 300px; height: 80px;">
+      <select id="attribute-dropdown" style="font-size: 30px;">
+        <!-- Your options here -->
       </select>
     </div>
   </div>
-
-  <div class="dropdown-container">
-    <div class="label">Attribute:</div>
-    <div class="custom-select">
-      <select id="attribute-dropdown">
-
-      </select>
-    </div>
-  </div>
+  
 
   <div class="graph-sections-container" >
-    <div class="slider-container center-slider"  style="position: absolute;left: -35px;">
-      <input type="range" min="2000" max="2016" value="2001" class="slider" id="year">
-      <p>Year: <span id="yearValue">2001</span></p>
-    </div>
+    <div class="slider-container center-slider" style="position: absolute; left: -35px; z-index: 999;">
+      <p style="font-size: 30px;">Year: <span id="yearValue" style="font-size: 30px;">2001</span></p>
+      <input type="range" min="2000" max="2017" value="2001" class="slider" id="year">
+  </div>
+  
     
-    <section id="geo-spatial" class="graph-section">
+    <section id="geo-spatial" class="graph-section" style="margin-top: 30px;">
         <div class="feature" style="width: max-content; height: 1600px;">
-            <h2>GeoSpatial</h2>
+            <h2 id="geo-h" style="font-size: 32px;" >GeoSpatial map for Deaths during 2001</h2>
             <svg id="map-svg" width="2800" height="1200"></svg>
         </div>
     </section>
@@ -94,8 +88,8 @@
   <div class="graph-sections-container">
     <section id="stacked_bar_plot" class="graph-section">
       <div class="feature" style="width: 1158px; height: 1200px;">
-          <h2>Stacked Bar Plot</h2>
-          <svg id="vertical_stacked_bar_plot_svg" width="800" height="800"></svg>
+          <h2 id="stacked-h" style="font-size: 32px;">Variation over different mental disorder for Chile</h2>
+          <svg id="vertical_stacked_bar_plot_svg" width="1000" height="1000"></svg>
 
           <div style="position: absolute; bottom: 70px;">
             
@@ -107,8 +101,8 @@
     <section id="corr_plot" class="graph-section">
         
       <div class="feature" style="width: 1158px; height: 1200px;">
-          <h2>Correlation Plot</h2>
-          <svg id="corr_plot_svg" width="800" height="800"></svg>
+          <h2 id="corr-h" style="font-size: 32px;" >Correlation between attributes</h2>
+          <svg id="corr_plot_svg" width="1000" height="1000"></svg>
 
           <div style="position: absolute; bottom: 70px;">
 
@@ -125,16 +119,20 @@
 
   
 
-  <aside class="side-panel">
-    <h2>Additional Information</h2>
-    <p id="meta-data-panel">Meta data related to the chosen attributes will be shown here</p>
-  </aside>
+  <aside id="side-panel" class="side-panel">
+    <h2 style="font-size: 24px;">Additional Information</h2>
+    <p id="meta-data-panel" style="font-size: 24px;">Meta data related to the chosen attributes will be shown here</p>
+    <button id="toggle-btn" style="height: 50px;width: 310px;">Hide Additional Info</button>
+</aside>
+
+
+
 
   <footer>
     <div class="footer-content">
-      <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p>
+      <p style="color: #ff9933;font-size: 20px;" >Mail id: svanajapandi@cs.stonybrook.edu</p>
       <!-- <p style="color: #ff9933;">Mail id: svanajapandi@cs.stonybrook.edu</p> -->
-      <p style="color: #ff9933;">Mail id: adhoni@cs.stonybrook.edu</p>
+      <p style="color: #ff9933;font-size: 20px;">Mail id: adhoni@cs.stonybrook.edu</p>
     </div>
   </footer>
 

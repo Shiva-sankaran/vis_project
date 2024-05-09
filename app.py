@@ -6,25 +6,26 @@ from sklearn.preprocessing import StandardScaler, PowerTransformer
 from sklearn.manifold import MDS
 from sklearn.cluster import KMeans
 import numpy as np
+
 warnings.filterwarnings("ignore")
 
 numerical_columns = [
-    'Literarcy rate', 'Disease_deaths', 'Road traffic death rate',
+    'Literarcy rate', 'Road traffic death rate',
     'Suicide rate', 'Deaths', 'GDP', 'Population',
-    'Population of children under the age of 1',
-    'Population of children under the age of 5',
-    'Population of children under the age of 15',
-    'Population under the age of 25'
+    'Schizophrenia (%)', 
+    'Bipolar disorder (%)', 'Eating disorders (%)', 
+    'Anxiety disorders (%)', 'Drug use disorders (%)', 
+    'Depression (%)', 'Alcohol use disorders (%)'
 ]
 
 app = Flask(__name__)
 
-df = pd.read_csv("final_comb_data.csv")
+df = pd.read_csv("socio-eco-inter-data.csv")
 
 num_df = df[numerical_columns]
 X = num_df.values.tolist()
 
-with open('merged_world_map_new.geojson', 'r') as file:
+with open('socio-eco-inter-data.geojson', 'r') as file:
     geojson_data = json.load(file)
 
 
@@ -36,6 +37,12 @@ def index():
 @app.route('/references')
 def ref():
     return render_template('references.html')
+
+@app.route('/team')
+def team():
+    return render_template('team.html')
+
+
 
 @app.route('/get_geojson_data', methods=['POST'])
 def get_geojson_data():
@@ -49,24 +56,29 @@ def get_geojson_data():
         new_feature = feature.copy()
         properties = new_feature['properties']
         new_properties = properties.copy()
-        if(str(year) not in new_properties['data']):
-            new_properties['data'][str(year)] = dict.fromkeys(new_properties['data'][list(new_properties['data'].keys())[0]], 0)
-        
+        if (str(year) not in new_properties['data']):
+            new_properties['data'][str(year)] = dict.fromkeys(
+                new_properties['data'][list(new_properties['data'].keys())[0]],
+                0)
+
         new_properties.update(new_properties['data'][str(year)])
         del new_properties['data']
         new_feature['properties'] = new_properties
         filtered_features.append(new_feature)
 
-        
-
-    filtered_geojson_data = {'type': 'FeatureCollection', 'features': filtered_features}
+    filtered_geojson_data = {
+        'type': 'FeatureCollection',
+        'features': filtered_features
+    }
     return jsonify(filtered_geojson_data)
     # return jsonify(geojson_data)
+
 
 @app.route('/get_data', methods=['POST'])
 def get_data():
 
     return jsonify(df.to_dict(orient='records'))
+
 
 @app.route('/get_income_data', methods=['POST'])
 def get_income_data():
@@ -86,13 +98,12 @@ def get_income_data():
     mid_income_avg = mid_income_countries.mean().to_dict()
     high_income_avg = high_income_countries.mean().to_dict()
 
-
     data = {
         'low_income_avg': low_income_avg,
         'mid_income_avg': mid_income_avg,
         'high_income_avg': high_income_avg
     }
-    print("RETURING data:",data)
+    print("RETURING data:", data)
     return jsonify(data)
 
 
@@ -105,13 +116,13 @@ def get_country_names():
 
     return jsonify(data)
 
+
 @app.route('/choose_country', methods=['POST'])
 def choose_country():
     # country_name = request.form.get('country')
     print(request.form.get('country'))
     country_df = df[df['Country'] == request.form.get('country')]
     return jsonify(country_df.to_dict(orient='records'))
-
 
 
 @app.route('/MDS_corr', methods=['POST'])
@@ -126,13 +137,14 @@ def MDS_corr():
 
     correlation_matrix = np.corrcoef(X_s.T)
     correlation_distances = 1 - np.abs(correlation_matrix)
-    variables_mds = MDS(n_components=2, dissimilarity='precomputed',random_state=69)
+    variables_mds = MDS(n_components=2,
+                        dissimilarity='precomputed',
+                        random_state=69)
     variables_mds_transformed = variables_mds.fit_transform(
         correlation_distances)
 
-
     data = {
-        'MDS_var_vectors':variables_mds_transformed.tolist(),
+        'MDS_var_vectors': variables_mds_transformed.tolist(),
         'feature_names': numerical_columns,
         'MDS_correlation_matrix': correlation_matrix.tolist()
     }
@@ -140,24 +152,29 @@ def MDS_corr():
     return jsonify(data)
 
 
-
 @app.route('/stacked_barcharts', methods=['POST'])
 def stacked_barcharts():
 
-    mental_cols = ["Year",'Alcohol use disorders (%)','Bipolar disorder (%)', 'Eating disorders (%)', 'Depression (%)','Drug use disorders (%)']
+    mental_cols = [
+        "Year", 'Alcohol use disorders (%)', 'Bipolar disorder (%)',
+        'Eating disorders (%)', 'Depression (%)', 'Drug use disorders (%)'
+    ]
     print(request.form.get('country'))
     country_df = df[df['Country'] == request.form.get('country')]
     selected_df = country_df[mental_cols]
     data_list = selected_df.to_dict(orient='records')
     final_data = []
     for item in data_list:
-        final_data.append({'year':item["Year"],"diseases":{
-            'Alcohol use disorders (%)':item["Alcohol use disorders (%)"],
-            'Bipolar disorder (%)':item['Bipolar disorder (%)'], 
-            'Eating disorders (%)':item['Eating disorders (%)'], 
-            'Depression (%)':item['Depression (%)'],
-            'Drug use disorders (%)':item['Drug use disorders (%)']
-        } })
+        final_data.append({
+            'year': item["Year"],
+            "diseases": {
+                'Alcohol use disorders (%)': item["Alcohol use disorders (%)"],
+                'Bipolar disorder (%)': item['Bipolar disorder (%)'],
+                'Eating disorders (%)': item['Eating disorders (%)'],
+                'Depression (%)': item['Depression (%)'],
+                'Drug use disorders (%)': item['Drug use disorders (%)']
+            }
+        })
 
     return jsonify(final_data)
 
@@ -166,9 +183,9 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 # Clean code # wink wink
-    
-# Fix missing data in geospatial
-# Remove country selection dropdown
+
+# Fix missing data in geospatial (Might have to use data filling methods or create data) [DONE]
+# Also fix legend and coloring for different attribute values (somethign like top 10% percentile) {NOT DOING DONE}
+# Remove country selection dropdown [DONE]
 # Font sizes
 # Make everything more viewable
-

@@ -301,7 +301,9 @@ div[style="position: absolute; bottom: 70px;"] p {
 
 .center-slider input[type="range"] {
   width: 2880px; /* Adjust width as needed */
+  height: 25px;
 }
+
 
 
 body {

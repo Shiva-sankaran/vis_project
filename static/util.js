@@ -21,18 +21,19 @@ const columnDataTypes = {
     'Country': "Country : No Meta data",
     'Year': "Year : No Meta data", 
     'Literarcy rate': "Literarcy rate: Out of 100",
-    'Disease_deaths': "Disease_deaths: Probability of dying between 15 and 60 years per 1000 population)",
+    // 'Disease_deaths': "Disease_deaths: Probability of dying between 15 and 60 years per 1000 population)",
     'Road traffic death rate': "Road traffic rate : Estimated road traffic death rate (per 100 000 population)",
     'Suicide rate': "Suicide rate : Suicide deaths per 100 000 population",
     'Deaths': "Deaths : Deaths per 1000 people",
     'ParentLocationCode' : "ParentLocationCode:  Geographical location",
     'Country Code':"Country Code : No Meta data",
     'GDP':"GDP : In millions USD",
-    'Population':"Population: In millions",
-    'Population of children under the age of 1':"Population of children under the age of 1: In millions",
-    'Population of children under the age of 5':"Population of children under the age of 5: In millions",
-    'Population of children under the age of 15':"Population of children under the age of 15: In millions",
-    'Population under the age of 25':"Population of children under the age of 25: In millions",
+    "Mental health": "Mental health : % of people diagonised with the corresponding disorder"
+    // 'Population':"Population: In millions",
+    // 'Population of children under the age of 1':"Population of children under the age of 1: In millions",
+    // 'Population of children under the age of 5':"Population of children under the age of 5: In millions",
+    // 'Population of children under the age of 15':"Population of children under the age of 15: In millions",
+    // 'Population under the age of 25':"Population of children under the age of 25: In millions",
   };
 
 
@@ -40,32 +41,25 @@ function isCategorical(columnName) {
 return columnDataTypes[columnName];
 }
   
-function generateDropdownOptions(dropdown,columnNames,type,selected_text = "") {
-    console.log("LOGGIN")
-    console.log(columnNames)
-    dropdown.innerHTML = ''; // Clear existing options
-    const defaultOption = document.createElement('option');
-    defaultOption.value = 'default';
-    defaultOption.text = 'Choose a column...';
-    dropdown.appendChild(defaultOption);
-    console.log("LOGGIN")
-    console.log(columnNames)
-    columnNames.forEach(column => {
-      if (!isCategorical(column) | type == "any") {
-        const option = document.createElement('option');
-        option.value = column;
-        option.textContent = column;
-        dropdown.appendChild(option);
-        if (column === selected_text) {
-          option.selected = true;
-       }
+function generateDropdownOptions(dropdown, columnNames, type, selected_text = "", fontSize = "30px") {
+  dropdown.innerHTML = ''; // Clear existing options
+  const defaultOption = document.createElement('option');
+  defaultOption.value = 'default';
+  defaultOption.text = 'Choose a column...';
+  defaultOption.style.fontSize = fontSize
+  dropdown.appendChild(defaultOption);
+
+  columnNames.forEach(column => {
+      if (!isCategorical(column) || type === "any") {
+          const option = document.createElement('option');
+          option.value = column;
+          option.textContent = column;
+          option.style.fontSize = fontSize; // Set the font size
+          dropdown.appendChild(option);
+          if (column === selected_text) {
+              option.selected = true;
+          }
       }
-
-      
-    }
-    
-    );
-
-    
-  }
+  });
+}
 export { isCategorical, generateDropdownOptions,columnMetadata };

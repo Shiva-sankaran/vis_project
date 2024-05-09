@@ -32,6 +32,7 @@ function getColor(value) {
 }
 
 let country_name = ""
+let chosen_country_name = "Chile"
 export function renderChoroplethMap(geoData) {
     // Clear previous visualization
     d3.select("#map-svg").selectAll("*").remove();
@@ -74,11 +75,16 @@ export function renderChoroplethMap(geoData) {
     .attr("d", pathGenerator)
     .attr("fill", d => {
         // Check if properties exist before accessing them
+        if(d.properties.name == chosen_country_name){
+            return "orange"
+        }
+        else{
         if (d.properties && d.properties[yAxisAttribute]) {
             return getColor(d.properties[yAxisAttribute]);
         } else {
             return "lightgray"; // Or any other default color
         }
+    }
     })
     .attr("stroke", "white")
     .attr("stroke-width", 0.5)
@@ -118,6 +124,7 @@ export function renderChoroplethMap(geoData) {
 
         // Get the chosen value (for example, the country name)
         const chosenValue = d.properties.name;
+        chosen_country_name = d.properties.name
         // Call the imported function with the chosen value
         handleMapClick(chosenValue);
     });
@@ -162,8 +169,8 @@ export async function renderLineChart(countryData) {
 
     // Define margin, width, and height for the chart
     const margin = { top: 20, right: 30, bottom: 50, left: 50 };
-    const width = 800 - margin.left - margin.right;
-    const height = 800 - margin.top - margin.bottom;
+    const width = 1000 - margin.left - margin.right;
+    const height = 1000 - margin.top - margin.bottom;
 
     // Create SVG for the line chart
     const svg = d3.select("#line-plot")
@@ -196,12 +203,14 @@ export async function renderLineChart(countryData) {
     svg.append("g")
         .attr("class", "x-axis")
         .attr("transform", "translate(0," + height + ")")
+        .style("font-size", "14px")
         .call(xAxis);
 
     // Create y-axis
     const yAxis = d3.axisLeft(yScale);
     svg.append("g")
         .attr("class", "y-axis")
+        .style("font-size", "14px")
         .call(yAxis);
 
     // Add circles to mark data points
@@ -211,8 +220,21 @@ export async function renderLineChart(countryData) {
         .attr("class", "circle")
         .attr("cx", (d, i) => xScale(xValues[i]))
         .attr("cy", d => yScale(d[yAxisAttribute]))
-        .attr("r", 4)
-        .attr("fill", "steelblue");
+        .attr("r", 7)
+        .attr("fill", "steelblue")
+
+        .on("mouseover", function(d, i) {
+            d3.select(this).attr("fill", "orange");
+        })
+        .on("mouseout", function(d, i) {
+            d3.select(this).attr("fill", "steelblue");
+            svg.select(".tooltip").remove();
+        });
+
+    svg.selectAll('.circle')
+        .data(countryData)
+        .append('title')
+        .text((d, i) => `${xValues[i]} : ${d[yAxisAttribute]}`);
 
     // Add the line to the SVG
     svg.append("path")
@@ -220,17 +242,18 @@ export async function renderLineChart(countryData) {
         .attr("class", "line")
         .attr("fill", "none")
         .attr("stroke", "steelblue")
-        .attr("stroke-width", 2)
+        .attr("stroke-width", 5)
         .attr("d", line);
 
     // Add y-axis label
     svg.append("text")
        .attr('class', 'axis-label')
        .attr("transform", "rotate(-90)")
-       .attr("y", -margin.left)
+       .attr("y", -margin.left -3)
        .attr("x", 0 - (height / 2))
        .attr("dy", "1em")
        .style("text-anchor", "middle")
+       .style("font-size", "24px")
        .text(yAxisAttribute);
 
     // Add chart title
@@ -238,6 +261,7 @@ export async function renderLineChart(countryData) {
     .attr('class', 'axis-label')
     .attr("transform", `translate(${width / 2},${height + margin.top + 30})`)
     .style("text-anchor", "middle")
+    .style("font-size", "24px")
     .text("Year");
 }
 
@@ -257,7 +281,7 @@ export async function renderIncomeBarPlot(data) {
 
     // Define margin, width, and height for the chart
     const margin = { top: 20, right: 30, bottom: 50, left: 50 };
-    const width = 800 - margin.left - margin.right;
+    const width = 1000 - margin.left - margin.right;
     const height = 800 - margin.top - margin.bottom;
     
 
@@ -285,10 +309,12 @@ export async function renderIncomeBarPlot(data) {
     svg.append("g")
        .attr("class", "x-axis")
        .attr("transform", "translate(0," + height + ")")
+       .style("font-size", "18px")
        .call(xAxis);
 
     svg.append("g")
        .attr("class", "y-axis")
+       .style("font-size", "18px")
        .call(yAxis);
 
     // Create bars
@@ -307,7 +333,13 @@ export async function renderIncomeBarPlot(data) {
     .on("mouseout", function(d, i) {
         const index = +d3.select(this).attr("data-index"); 
         d3.select(this).attr("fill", "steelblue");
+        svg.select(".tooltip").remove();
     });
+
+    svg.selectAll('rect')
+        .data(incomeCategories)
+        .append('title')
+        .text(d => `${data[d][yAxisAttribute]}`);
 
     svg.append("text")
        .attr('class', 'axis-label')
@@ -316,6 +348,7 @@ export async function renderIncomeBarPlot(data) {
        .attr("x", 0 - (height / 2))
        .attr("dy", "1em")
        .style("text-anchor", "middle")
+       .style("font-size", "24px")
        .text(yAxisAttribute);
 
 
@@ -323,15 +356,16 @@ export async function renderIncomeBarPlot(data) {
     .attr('class', 'axis-label')
     .attr("transform", `translate(${width / 2},${height + margin.top + 30})`)
     .style("text-anchor", "middle")
+    .style("font-size", "24px")
     .text("Income Categories");
 }
 
 export async function renderVerticalStackedBarPlot(data) {
     console.log("Rendering vertical stacked bar charts");
     console.log(data)
-    var margin = { top: 20, right: 30, bottom: 30, left: 60 };
-    var width = 800 - margin.left - margin.right;
-    var height = 800 - margin.top - margin.bottom;
+    var margin = { top: 20, right: 30, bottom: 80, left: 60 };
+    var width = 1000 - margin.left - margin.right;
+    var height = 1000 - margin.top - margin.bottom;
     d3.select("#vertical_stacked_bar_plot_svg").selectAll("*").remove();
 
     // Create SVG for the bar chart
@@ -341,25 +375,10 @@ export async function renderVerticalStackedBarPlot(data) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // Dummy data
-    // var data = [
-    //     { year: 2010, diseases: { A: 20, B: 30, C: 40, D: 50, E: 60 } },
-    //     { year: 2011, diseases: { A: 30, B: 40, C: 50, D: 60, E: 70 } },
-    //     { year: 2012, diseases: { A: 40, B: 50, C: 60, D: 70, E: 80 } }
-    //     // Add more data points as needed
-    // ];
 
-    // Extracting the keys (disease names) from the first data entry
     var keys = Object.keys(data[0].diseases);
     console.log("Keys:",keys)
-    // Define colors for diseases
-    // var diseaseColors = {
-    //     A: "#1f77b4", // blue
-    //     B: "#ffea00", // yellow
-    //     C: "#2ca02c", // green
-    //     D: "#d62728", // red
-    //     E: "#9467bd" // purple
-    // };
+
     var diseaseColors = {
         "Alcohol use disorders (%)": "#1f77b4", // blue
         'Bipolar disorder (%)': "#ffea00", // yellow
@@ -437,13 +456,61 @@ export async function renderVerticalStackedBarPlot(data) {
     var yAxis = d3.axisLeft(y);
 
     svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .style("font-size", "18px")
+    .call(xAxis)
+    .selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-0.8em")
+    .attr("dy", "0.15em")
+    .attr("transform", "rotate(-90)");
 
     svg.append("g")
         .attr("class", "y axis")
+        .style("font-size", "18px")
         .call(yAxis);
+
+    
+    svg.append("text")
+       .attr('class', 'axis-label')
+       .attr("transform", "rotate(-90)")
+       .attr("y", -margin.left)
+       .attr("x", 0 - (height / 2))
+       .attr("dy", "1em")
+       .style("text-anchor", "middle")
+       .style("font-size", "24px")
+       .text("Mental Health (%)");
+
+    
+    const legend = svg.append("g")
+        .attr("class", "legend")
+        .attr("transform", "translate(" + (width - 200) + ", 10)");
+
+    // Create legend items
+    const legendItems = legend.selectAll(".legend-item")
+        .data(keys)
+        .enter().append("g")
+        .attr("class", "legend-item")
+        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+    // Add colored squares to legend
+    legendItems.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", 18)
+        .attr("height", 18)
+        .attr("fill", function(d) { return diseaseColors[d]; });
+
+    // Add disease names to legend
+    legendItems.append("text")
+    .attr("x", 24)
+    .attr("y", 9)
+    .attr("dy", ".35em")
+    .style("text-anchor", "start")
+    .attr("fill", function(d) { return diseaseColors[d]; }) // Set text color to legend color
+    .style("font-size", "14px")
+    .text(function(d) { return d; });
 }
 
 let threshold_mem = slider_start_value
@@ -464,7 +531,7 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
 
     console.log("value", xval, yval);
 
-    const margin = { top: 80, right: 100, bottom: 50, left: 100 };
+    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
     const width = +svg.attr("width") - margin.left - margin.right;
     const height = +svg.attr("height") - margin.top - margin.bottom;
 
@@ -493,7 +560,7 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
     //     .text("Legend for Loading Vectors");
 
     
-    const VarColors = ["teal", "lightblue", "coral", "lightgreen", "violet", "orange", "pink", "gold", "lightgray", "lightsteelblue", "lightcoral"];
+    const VarColors = ["teal", "lightblue", "coral", "lightgreen", "violet", "orange", "pink", "gold", "lightgray", "lightsteelblue", "lightcoral", "cyan", "lavender", "lime", "turquoise", "tan", "orchid", "khaki", "olive"];
 
     const legend = svg.append("g")
             .attr("class", "legend")
@@ -517,7 +584,7 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
     .attr("class", "point") // Add class "point" to circles
     .attr("cx", d => xScale(d[xval]))
     .attr("cy", d => yScale(d[yval]))
-    .attr("r", 9)
+    .attr("r", 12)
     .attr("fill", (d, i) => VarColors[i])
     .attr("opacity", 0.7)
     .attr("feature", (d, i) => feature_names[i])
@@ -586,7 +653,7 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
                     .attr("x2", xScale(X_pca1[j][xval]))
                     .attr("y2", yScale(X_pca1[j][yval]))
                     .style("stroke", function(d) { return correlation > 0 ? "green" : "red"; }) // Fixed color
-                    .style("stroke-width", 5) // Constant width
+                    .style("stroke-width", 8) // Constant width
                     .style("opacity", opacity); // Set opacity based on correlation value
     
                 // Append text marker (hidden by default)
@@ -595,7 +662,7 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
                     .attr("y", textY)
                     .attr("dy", -5) // Offset the text slightly above the line
                     .style("fill", "white")
-                    .style("font-size", "12px")
+                    .style("font-size", "18px")
                     .text(`${feature_names[i]} - ${feature_names[j]}: ${correlation.toFixed(2)}`)
                     .style("display", "none"); // Hide text initially
     
@@ -633,7 +700,7 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
         .attr("x2", 200)
         .attr("y2", 0)
         .style("stroke", "white")
-        .style("stroke-width", 2); // Adjust line width as needed
+        .style("stroke-width", 5); // Adjust line width as needed
     
     // Add ticks for minimum and maximum values
     const minTick = sliderGroup.append("text")
@@ -642,6 +709,7 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
         .attr("x", 0)
         .attr("y", 0)
         .attr("dy", "1.5em")
+        .style("font-size","18px")
         .style("fill", "white")
         .text("0");
     
@@ -651,6 +719,7 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
         .attr("x", 200)
         .attr("y", 0)
         .attr("dy", "1.5em")
+        .style("font-size","18px")
         .style("fill", "white")
         .text("1");
     
@@ -661,12 +730,13 @@ export async function renderMDSVariablePlot(X_pca1, feature_names, correlation_m
         .attr("x", 100) // Position at the center initially
         .attr("y", -20) // Position above the slider
         .style("fill", "white")
+        .style("font-size","24px")
         .text(threshold_mem.toFixed(2)); // Initial text (slider value)
     
     // Add slider handle
     const handle = sliderGroup.append("circle")
         .attr("class", "handle")
-        .attr("r", 9)
+        .attr("r", 12)
         .style("fill", "white")
         .attr("cx", threshold_mem * 200) // Initial position based on threshold_mem
         .call(d3.drag()

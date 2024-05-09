@@ -2,23 +2,26 @@ import { renderIncomeBarPlot, renderLineChart, renderChoroplethMap, renderVertic
 import {incomeYAxisColumns} from "./constants.js"
 import { generateDropdownOptions } from "./util.js";
 
+
 const columnMetadata = {
     'Country': "Country : No Meta data",
     'Year': "Year : No Meta data", 
     'Literarcy rate': "Literarcy rate: Out of 100",
-    'Disease_deaths': "Disease_deaths: Probability of dying between 15 and 60 years per 1000 population)",
+    // 'Disease_deaths': "Disease_deaths: Probability of dying between 15 and 60 years per 1000 population)",
     'Road traffic death rate': "Road traffic rate : Estimated road traffic death rate (per 100 000 population)",
     'Suicide rate': "Suicide rate : Suicide deaths per 100 000 population",
     'Deaths': "Deaths : Deaths per 1000 people",
     'ParentLocationCode' : "ParentLocationCode:  Geographical location",
     'Country Code':"Country Code : No Meta data",
     'GDP':"GDP : In millions USD",
-    'Population':"Population: In millions",
-    'Population of children under the age of 1':"Population of children under the age of 1: In millions",
-    'Population of children under the age of 5':"Population of children under the age of 5: In millions",
-    'Population of children under the age of 15':"Population of children under the age of 15: In millions",
-    'Population under the age of 25':"Population of children under the age of 25: In millions",
+    "Mental health": "Mental health : % of people diagonised with the corresponding disorder"
+    // 'Population':"Population: In millions",
+    // 'Population of children under the age of 1':"Population of children under the age of 1: In millions",
+    // 'Population of children under the age of 5':"Population of children under the age of 5: In millions",
+    // 'Population of children under the age of 15':"Population of children under the age of 15: In millions",
+    // 'Population under the age of 25':"Population of children under the age of 25: In millions",
   };
+
 
 export async function fetchData(url, data) {
     const response = await fetch(url, {
@@ -31,17 +34,17 @@ export async function fetchData(url, data) {
     return response.json();
 }
 
+let chosen_country_name = "Chile"
 document.addEventListener("DOMContentLoaded", async function() {
     console.log("DOM LOADED")
     const countryNamesData = await fetchData('/get_country_names', {});
 
     
     
-    generateDropdownOptions(document.getElementById('country-dropdown'), countryNamesData.country_names,"any","Chile");
+    // generateDropdownOptions(document.getElementById('country-dropdown'), countryNamesData.country_names,"any","Chile");
     generateDropdownOptions(document.getElementById('attribute-dropdown'), incomeYAxisColumns,"any","Deaths");
 
     
-
     // renderVerticalStackedBarPlot()
 
     const MDSCorrData = await fetchData('/MDS_corr', {});
@@ -71,13 +74,13 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     // Update Line plot
     const lineInputData = new URLSearchParams();
-    lineInputData.append('country', document.getElementById("country-dropdown").value); 
+    lineInputData.append('country', chosen_country_name); 
     const lineData=  await fetchData('/choose_country', lineInputData);
     renderLineChart(lineData)
 
     // Update stacked bar charts
     const stackedBarInputData = new URLSearchParams();
-    stackedBarInputData.append('country', document.getElementById("country-dropdown").value); 
+    stackedBarInputData.append('country', chosen_country_name); 
     const stackedBarData=  await fetchData('/stacked_barcharts', stackedBarInputData);
     console.log("STacked bar charts", stackedBarData)
     renderVerticalStackedBarPlot(stackedBarData)
@@ -85,7 +88,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     document.getElementById("meta-data-panel").innerText = ''
     console.log("INNER TEXT:",document.getElementById("meta-data-panel").innerText )
-    updatemetaData(["Year","Country","ParentLocationCode",'Literarcy rate', 'Disease_deaths', 'Road traffic death rate','Suicide rate', 'Deaths', 'GDP', 'Population'])
+    updatemetaData(['Literarcy rate', 'Road traffic death rate','Suicide rate', 'Deaths', 'GDP', 'Population',"Mental health"])
 
 
 
@@ -111,7 +114,7 @@ document.getElementById("attribute-dropdown").addEventListener("change", async f
 
     // Update Line plot
     const lineInputData = new URLSearchParams();
-    lineInputData.append('country', document.getElementById("country-dropdown").value); 
+    lineInputData.append('country', chosen_country_name); 
     const lineData=  await fetchData('/choose_country', lineInputData);
     renderLineChart(lineData)
 
@@ -122,20 +125,12 @@ document.getElementById("attribute-dropdown").addEventListener("change", async f
     const geoData =  await fetchData('/get_geojson_data', geoFormData);
     renderChoroplethMap(geoData)
 
+
+    document.getElementById('line-h').innerText = "Variation of " + document.getElementById("attribute-dropdown").value + " for " + chosen_country_name
+    document.getElementById('bar-h').innerText = "Comparision "  + document.getElementById("attribute-dropdown").value + " by Income groups during " + year
+    document.getElementById('geo-h').innerText = "GeoSpatial map for "  + document.getElementById("attribute-dropdown").value + " during " + year
 });
 
-
-// Country Dropdown
-document.getElementById("country-dropdown").addEventListener("change", async function() {
-    console.log("CHAING COUNTRY",document.getElementById("country-dropdown").value)
-    
-    // Update Line plot
-    const lineInputData = new URLSearchParams();
-    lineInputData.append('country', document.getElementById("country-dropdown").value); 
-    const lineData=  await fetchData('/choose_country', lineInputData);
-    renderLineChart(lineData)
-
-});
 
 // Year Slider
 document.getElementById("year").addEventListener("input", async function() {
@@ -160,6 +155,9 @@ document.getElementById("year").addEventListener("input", async function() {
     geoFormData.append('year', year); 
     const geoData =  await fetchData('/get_geojson_data', geoFormData);
     renderChoroplethMap(geoData)
+
+    document.getElementById('bar-h').innerText = "Comparision "  + document.getElementById("attribute-dropdown").value + " by Income groups during " + year
+    document.getElementById('geo-h').innerText = "GeoSpatial map for "  + document.getElementById("attribute-dropdown").value + " during " + year
 
 });
 
@@ -201,6 +199,8 @@ document.getElementById("midThreshold").addEventListener("input", async function
 export async function handleMapClick(value) {
     // Do something with the chosen value
     console.log("Chosen value:", value);
+    chosen_country_name = value
+
 
     // Update Line plot
     const lineInputData = new URLSearchParams();
@@ -208,7 +208,7 @@ export async function handleMapClick(value) {
     const lineData=  await fetchData('/choose_country', lineInputData);
     renderLineChart(lineData)
 
-
+    
     // Update stacked bar charts
     const stackedBarInputData = new URLSearchParams();
     stackedBarInputData.append('country', value); 
@@ -216,13 +216,36 @@ export async function handleMapClick(value) {
     console.log("STacked bar charts", stackedBarData)
     renderVerticalStackedBarPlot(stackedBarData)
 
+
+    document.getElementById('line-h').innerText = "Variation of " + document.getElementById("attribute-dropdown").value + " for " + chosen_country_name
+    document.getElementById('stacked-h').innerText = "Variation over different mental disorders for " + chosen_country_name
 }
 
 export async function updatemetaData(columns){
     console.log("UPDIANG META DATA")
     document.getElementById("meta-data-panel").innerText = ''
+    console.log(columnMetadata)
     columns.forEach((columnName, index) => {
+        console.log(columnName)
+        console.log(columnMetadata[columnName])
         document.getElementById("meta-data-panel").innerText = document.getElementById("meta-data-panel").innerText + columnMetadata[columnName] + "\n"
     });
 
 };
+
+function toggleMetaDataPanel() {
+    var metaDataPanel = document.getElementById("meta-data-panel");
+    var toggleBtn = document.getElementById("toggle-btn");
+    if (metaDataPanel.style.display === "none" || metaDataPanel.style.display === "") {
+        metaDataPanel.style.display = "block";
+        toggleBtn.textContent = "Hide Additional Info";
+    } else {
+        metaDataPanel.style.display = "none";
+        toggleBtn.textContent = "Show Additional Info";
+    }
+}
+
+// Add event listener to the button to toggle the meta data panel
+document.getElementById("toggle-btn").addEventListener("click", toggleMetaDataPanel);
+
+
